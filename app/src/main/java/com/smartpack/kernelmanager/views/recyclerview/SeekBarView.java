@@ -188,8 +188,10 @@ public class SeekBarView extends RecyclerViewItem {
             }
         }
         if (mSeekBar != null) {
+            int keep = mProgress;
             mSeekBar.setMax(mItems.size() - 1);
             mSeekBar.setMin(0);
+            mProgress = keep;
             mSeekBar.setEnabled(mEnabled);
             if (mValue != null) {
                 try {

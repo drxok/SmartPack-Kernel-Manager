@@ -1261,4 +1261,10 @@
     <string name="dx_eco_title_group">Ajustes do eco · %1$s</string>
     <string name="dx_t_up_delay_short">Quanto tempo a carga precisa durar antes de passar da frequência econômica.</string>
     <string name="dx_governor">Governador</string>
+    <string name="dx_limits">Limites de frequência · %1$s</string>
+    <string name="dx_max">Máxima</string>
+    <string name="dx_min">Mínima</string>
+    <string name="dx_more">mais…</string>
+    <string name="dx_all_tunables">Todos os ajustes do governador</string>
+    <string name="dx_all_tunables_sub">opções avançadas</string>
 </resources>

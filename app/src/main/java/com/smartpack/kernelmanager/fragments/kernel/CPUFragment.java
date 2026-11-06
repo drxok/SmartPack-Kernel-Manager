@@ -141,30 +141,10 @@ public class CPUFragment extends RecyclerViewFragment {
         mHeroBig = makeHero(mCPUFreq.isBigLITTLE() ? getString(R.string.dx_cluster_big_t) : getString(R.string.cpu),
                 bigCores, mCPUFreq.getBigCpu(), R.color.dx_lilac, R.color.dx_ink);
 
+        // Kernel Dr.xok: a frequência de cada núcleo já aparece no cartão de cima;
+        // aqui ficam só os limites, em barras
         mCoresBig.clear();
-        for (final int core : bigCores) {
-            SwitchView coreSwitch = new SwitchView();
-            coreSwitch.setSummary(getString(R.string.core, core + 1));
-
-            mCoresBig.put(core, coreSwitch);
-            cpuCard.addItem(coreSwitch);
-        }
-
-        mCPUMaxBig = new SelectView();
-        mCPUMaxBig.setTitle(getString(R.string.cpu_max_freq));
-        mCPUMaxBig.setSummary(getString(R.string.cpu_max_freq_summary));
-        mCPUMaxBig.setItems(mCPUFreq.getAdjustedFreq(getActivity()));
-        mCPUMaxBig.setOnItemSelected((selectView, position, item) -> mCPUFreq.setMaxFreq(mCPUFreq.getFreqs().get(position), bigCores.get(0),
-                bigCores.get(bigCores.size() - 1), getActivity()));
-        cpuCard.addItem(mCPUMaxBig);
-
-        mCPUMinBig = new SelectView();
-        mCPUMinBig.setTitle(getString(R.string.cpu_min_freq));
-        mCPUMinBig.setSummary(getString(R.string.cpu_min_freq_summary));
-        mCPUMinBig.setItems(mCPUFreq.getAdjustedFreq(getActivity()));
-        mCPUMinBig.setOnItemSelected((selectView, position, item) -> mCPUFreq.setMinFreq(mCPUFreq.getFreqs().get(position), bigCores.get(0),
-                bigCores.get(bigCores.size() - 1), getActivity()));
-        cpuCard.addItem(mCPUMinBig);
+        addFreqBars(cpuCard, mCPUFreq.getBigCpu(), bigCores);
 
         if (mCPUFreq.hasMaxScreenOffFreq()) {
             mCPUMaxScreenOffBig = new SelectView();
@@ -176,7 +156,7 @@ public class CPUFragment extends RecyclerViewFragment {
             cpuCard.addItem(mCPUMaxScreenOffBig);
         }
 
-        cpuCard.setTitle(getString(R.string.dx_advanced, mCPUFreq.isBigLITTLE()
+        cpuCard.setTitle(getString(R.string.dx_limits, mCPUFreq.isBigLITTLE()
                 ? getString(R.string.dx_cluster_big_t) : getString(R.string.cpu)));
 
         mCPUGovernorBig = new DxChipsView();
@@ -184,6 +164,7 @@ public class CPUFragment extends RecyclerViewFragment {
         mCPUGovernorBig.setStandalone(true);
         mCPUGovernorBig.setItems(mCPUFreq.getGovernors());
         labelGovernors(mCPUGovernorBig);
+        mCPUGovernorBig.setPrimary(DX_MAIN_GOVS, getString(R.string.dx_more));
         mCPUGovernorBig.setOnItemSelected((selectView, position, item) -> mCPUFreq.setGovernor(item, bigCores.get(0), bigCores.get(bigCores.size() - 1),
                 getActivity()));
 
@@ -191,13 +172,13 @@ public class CPUFragment extends RecyclerViewFragment {
         governorTunablesBig.setTitle(getString(R.string.cpu_governor_tunables));
         governorTunablesBig.setSummary(getString(R.string.governor_tunables_summary));
         governorTunablesBig.setOnItemClickListener(item -> showGovernorTunables(bigCores.get(0), bigCores.get(bigCores.size() - 1)));
-        cpuCard.addItem(governorTunablesBig);
 
         items.add(mHeroBig);
+        items.add(cpuCard);
         items.add(mCPUGovernorBig);
         addEcoCard(items, mCPUFreq.getBigCpu(), mCPUFreq.isBigLITTLE() ? getString(R.string.dx_cluster_big_t) : null,
                 R.color.dx_pink, R.color.dx_pink_ink);
-        items.add(cpuCard);
+        addTunablesRow(items, governorTunablesBig);
 
         if (mCPUFreq.isBigLITTLE()) {
             if (mCPUFreq.hasMidCpu()) {
@@ -278,32 +259,10 @@ public class CPUFragment extends RecyclerViewFragment {
             final List<Integer> LITTLECores = mCPUFreq.getLITTLECpuRange();
             mHeroLITTLE = makeHero(getString(R.string.dx_cluster_little_t), LITTLECores,
                     mCPUFreq.getLITTLECpu(), R.color.dx_mint, R.color.dx_mint_ink);
-            cpuLITTLECard.setTitle(getString(R.string.dx_advanced, getString(R.string.dx_cluster_little_t)));
+            cpuLITTLECard.setTitle(getString(R.string.dx_limits, getString(R.string.dx_cluster_little_t)));
 
             mCoresLITTLE.clear();
-            for (final int core : LITTLECores) {
-                SwitchView coreSwitch = new SwitchView();
-                coreSwitch.setSummary(getString(R.string.core, core + 1));
-
-                mCoresLITTLE.put(core, coreSwitch);
-                cpuLITTLECard.addItem(coreSwitch);
-            }
-
-            mCPUMaxLITTLE = new SelectView();
-            mCPUMaxLITTLE.setTitle(getString(R.string.cpu_max_freq));
-            mCPUMaxLITTLE.setSummary(getString(R.string.cpu_max_freq_summary));
-            mCPUMaxLITTLE.setItems(mCPUFreq.getAdjustedFreq(mCPUFreq.getLITTLECpu(), getActivity()));
-            mCPUMaxLITTLE.setOnItemSelected((selectView, position, item) -> mCPUFreq.setMaxFreq(mCPUFreq.getFreqs(mCPUFreq.getLITTLECpu()).get(position),
-                    LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1), getActivity()));
-            cpuLITTLECard.addItem(mCPUMaxLITTLE);
-
-            mCPUMinLITTLE = new SelectView();
-            mCPUMinLITTLE.setTitle(getString(R.string.cpu_min_freq));
-            mCPUMinLITTLE.setSummary(getString(R.string.cpu_min_freq_summary));
-            mCPUMinLITTLE.setItems(mCPUFreq.getAdjustedFreq(mCPUFreq.getLITTLECpu(), getActivity()));
-            mCPUMinLITTLE.setOnItemSelected((selectView, position, item) -> mCPUFreq.setMinFreq(mCPUFreq.getFreqs(mCPUFreq.getLITTLECpu()).get(position),
-                    LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1), getActivity()));
-            cpuLITTLECard.addItem(mCPUMinLITTLE);
+            addFreqBars(cpuLITTLECard, mCPUFreq.getLITTLECpu(), LITTLECores);
 
             if (mCPUFreq.hasMaxScreenOffFreq(mCPUFreq.getLITTLECpu())) {
                 mCPUMaxScreenOffLITTLE = new SelectView();
@@ -320,6 +279,7 @@ public class CPUFragment extends RecyclerViewFragment {
             mCPUGovernorLITTLE.setStandalone(true);
             mCPUGovernorLITTLE.setItems(mCPUFreq.getGovernors());
         labelGovernors(mCPUGovernorLITTLE);
+            mCPUGovernorLITTLE.setPrimary(DX_MAIN_GOVS, getString(R.string.dx_more));
             mCPUGovernorLITTLE.setOnItemSelected((selectView, position, item) -> mCPUFreq.setGovernor(item, LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1),
                     getActivity()));
 
@@ -327,13 +287,13 @@ public class CPUFragment extends RecyclerViewFragment {
             governorTunablesLITTLE.setTitle(getString(R.string.cpu_governor_tunables));
             governorTunablesLITTLE.setSummary(getString(R.string.governor_tunables_summary));
             governorTunablesLITTLE.setOnItemClickListener(item -> showGovernorTunables(LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1)));
-            cpuLITTLECard.addItem(governorTunablesLITTLE);
 
             items.add(mHeroLITTLE);
+            items.add(cpuLITTLECard);
             items.add(mCPUGovernorLITTLE);
             addEcoCard(items, mCPUFreq.getLITTLECpu(), getString(R.string.dx_cluster_little_t),
                     R.color.dx_mint, R.color.dx_mint_ink);
-            items.add(cpuLITTLECard);
+            addTunablesRow(items, governorTunablesLITTLE);
         }
     }
 
@@ -766,8 +726,14 @@ public class CPUFragment extends RecyclerViewFragment {
             labels.add(getString(R.string.dx_off));
             for (int f : freqs) labels.add((f / 1000) + " MHz");
             int cur = Utils.strToInt(Utils.readFile(effPath));
+            // o kernel arredonda para o passo seguinte da tabela (ex.: 1363 -> 1401 nos grandes)
             int pos = 0;
-            for (int i = 0; i < freqs.size(); i++) if (freqs.get(i) == cur) pos = i + 1;
+            if (cur > 0) {
+                pos = freqs.size();
+                for (int i = 0; i < freqs.size(); i++) {
+                    if (freqs.get(i) >= cur) { pos = i + 1; break; }
+                }
+            }
 
             SeekBarView eff = new SeekBarView();
             eff.setTitle(getString(R.string.dx_t_efficient_freq));
@@ -813,6 +779,80 @@ public class CPUFragment extends RecyclerViewFragment {
         }
 
         if (eco.size() > 0) items.add(eco);
+    }
+
+
+    /** barras de frequência máxima e mínima de um grupo de núcleos */
+    private void addFreqBars(CardView card, int cpu, List<Integer> cores) {
+        final List<Integer> freqs = mCPUFreq.getFreqs(cpu);
+        if (freqs == null || freqs.isEmpty() || cores.isEmpty()) return;
+        List<String> labels = new java.util.ArrayList<>();
+        for (int f : freqs) labels.add((f / 1000) + " MHz");
+        final int first = cores.get(0), last = cores.get(cores.size() - 1);
+
+        int curMax = nearestIndex(freqs, mCPUFreq.getMaxFreq(cpu, true));
+        int curMin = nearestIndex(freqs, mCPUFreq.getMinFreq(cpu, true));
+
+        SeekBarView max = new SeekBarView();
+        SeekBarView min = new SeekBarView();
+
+        max.setTitle(getString(R.string.dx_max));
+        max.setItems(labels);
+        max.setProgress(curMax < 0 ? freqs.size() - 1 : curMax);
+        max.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+            @Override
+            public void onStop(SeekBarView seekBarView, int position, String value) {
+                mCPUFreq.setMaxFreq(freqs.get(position), first, last, getActivity());
+                // o mínimo nunca fica acima do máximo
+                if (min.getProgress() > position) {
+                    min.setProgress(position);
+                    mCPUFreq.setMinFreq(freqs.get(position), first, last, getActivity());
+                }
+            }
+
+            @Override
+            public void onMove(SeekBarView seekBarView, int position, String value) {
+            }
+        });
+        card.addItem(max);
+
+        min.setTitle(getString(R.string.dx_min));
+        min.setItems(labels);
+        min.setProgress(curMin < 0 ? 0 : curMin);
+        min.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+            @Override
+            public void onStop(SeekBarView seekBarView, int position, String value) {
+                mCPUFreq.setMinFreq(freqs.get(position), first, last, getActivity());
+                if (max.getProgress() < position) {
+                    max.setProgress(position);
+                    mCPUFreq.setMaxFreq(freqs.get(position), first, last, getActivity());
+                }
+            }
+
+            @Override
+            public void onMove(SeekBarView seekBarView, int position, String value) {
+            }
+        });
+        card.addItem(min);
+    }
+
+
+    private static final List<String> DX_MAIN_GOVS = java.util.Arrays.asList(
+            "schedutil", "schedutil_orig", "performance", "powersave", "interactive");
+
+    private static int nearestIndex(List<Integer> freqs, int value) {
+        if (value <= 0) return -1;
+        for (int i = 0; i < freqs.size(); i++) if (freqs.get(i) >= value) return i;
+        return freqs.size() - 1;
+    }
+
+    /** linha discreta para todos os ajustes do governador */
+    private void addTunablesRow(List<RecyclerViewItem> items, DescriptionView row) {
+        row.setTitle(getString(R.string.dx_all_tunables));
+        row.setSummary(getString(R.string.dx_all_tunables_sub));
+        CardView card = new CardView(getActivity());
+        card.addItem(row);
+        items.add(card);
     }
 
 }

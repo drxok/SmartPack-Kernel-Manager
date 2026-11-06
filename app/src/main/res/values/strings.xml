@@ -1260,4 +1260,10 @@
     <string name="dx_eco_title_group">Eco settings · %1$s</string>
     <string name="dx_t_up_delay_short">How long the load must last before going past the efficient frequency.</string>
     <string name="dx_governor">Governor</string>
+    <string name="dx_limits">Frequency limits · %1$s</string>
+    <string name="dx_max">Maximum</string>
+    <string name="dx_min">Minimum</string>
+    <string name="dx_more">more…</string>
+    <string name="dx_all_tunables">All governor settings</string>
+    <string name="dx_all_tunables_sub">advanced options</string>
 </resources>

@@ -41,6 +41,28 @@ public class DxChipsView extends RecyclerViewItem {
     private OnItemSelected mOnItemSelected;
     private boolean mBinding;
     private boolean mStandalone;
+    private List<String> mPrimary;
+    private String mMoreLabel;
+    private boolean mExpanded;
+
+    /** mostra só estes (e o selecionado) até tocar em "mais…" */
+    public void setPrimary(List<String> primary, String moreLabel) {
+        mPrimary = primary;
+        mMoreLabel = moreLabel;
+        refresh();
+    }
+
+    private List<String> visibleItems() {
+        if (mPrimary == null || mExpanded) return mItems;
+        List<String> out = new ArrayList<>();
+        for (String p : mPrimary) if (mItems.contains(p)) out.add(p);
+        if (mSelected != null && mItems.contains(mSelected) && !out.contains(mSelected)) out.add(mSelected);
+        return out;
+    }
+
+    private boolean hasMore() {
+        return mPrimary != null && !mExpanded && visibleItems().size() < mItems.size();
+    }
 
     /** fora de cartão: ganha margem lateral como o resto da tela */
     public void setStandalone(boolean standalone) {
@@ -132,23 +154,32 @@ public class DxChipsView extends RecyclerViewItem {
 
         Context context = mChips.getContext();
         mBinding = true;
-        if (mChips.getChildCount() != mItems.size()) {
-            mChips.removeAllViews();
-            for (int i = 0; i < mItems.size(); i++) {
-                mChips.addView(makeChip(context, i));
-            }
+        List<String> visible = visibleItems();
+        boolean more = hasMore();
+        String sig = visible + "|" + mSelected + "|" + more + "|" + mLabels;
+        if (sig.equals(mChips.getTag())) {
+            mBinding = false;
+            return;
         }
-        for (int i = 0; i < mChips.getChildCount(); i++) {
-            Chip chip = (Chip) mChips.getChildAt(i);
-            String item = mItems.get(i);
-            String label = mLabels.get(item);
-            chip.setText(label != null ? label : item);
-            chip.setChecked(item.equals(mSelected));
+        mChips.setTag(sig);
+        mChips.removeAllViews();
+        for (int i = 0; i < visible.size(); i++) {
+            Chip chip = makeChip(context, visible.get(i));
+            String label = mLabels.get(visible.get(i));
+            chip.setText(label != null ? label : visible.get(i));
+            chip.setChecked(visible.get(i).equals(mSelected));
+            mChips.addView(chip);
+        }
+        if (more) {
+            Chip chip = makeChip(context, null);
+            chip.setText(mMoreLabel);
+            chip.setCheckable(false);
+            mChips.addView(chip);
         }
         mBinding = false;
     }
 
-    private Chip makeChip(Context context, int index) {
+    private Chip makeChip(Context context, final String item) {
         Chip chip = new Chip(context);
         chip.setCheckable(true);
         chip.setCheckedIconVisible(false);
@@ -173,11 +204,15 @@ public class DxChipsView extends RecyclerViewItem {
 
         chip.setOnClickListener(v -> {
             if (mBinding) return;
-            String item = mItems.get(index);
+            if (item == null) {          // "mais…"
+                mExpanded = true;
+                refresh();
+                return;
+            }
             mSelected = item;
             refresh();
             if (mOnItemSelected != null) {
-                mOnItemSelected.onItemSelected(this, index, item);
+                mOnItemSelected.onItemSelected(this, mItems.indexOf(item), item);
             }
         });
         return chip;
