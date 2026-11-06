@@ -274,7 +274,6 @@ public class NavigationActivity extends BaseActivity
         mDrawer = findViewById(R.id.drawer_layout);
         // Kernel Dr.xok: sem menu lateral; a navegação é a barra flutuante
         mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        initDxNavBar();
 
         mNavigationView = findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -358,6 +357,7 @@ public class NavigationActivity extends BaseActivity
         if (setShortcuts) {
             setShortcuts();
         }
+        initDxNavBar();
     }
 
     private NavigationFragment findNavigationFragmentByClass(Class<? extends Fragment> fragmentClass) {

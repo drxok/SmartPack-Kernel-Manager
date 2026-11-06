@@ -31,7 +31,7 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true" >
 
-        <activity android:name=".activities.StartActivity" android:label="@string/smartpack"
+        <activity android:name=".activities.StartActivity" android:label="@string/app_name"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +45,7 @@
         </activity>
 
         <activity
-            android:name=".activities.StartActivityMaterial" android:label="@string/smartpack"
+            android:name=".activities.StartActivityMaterial" android:label="@string/app_name"
             android:icon="@mipmap/ic_launcher_material"
             android:enabled="false"
             android:exported="true" >

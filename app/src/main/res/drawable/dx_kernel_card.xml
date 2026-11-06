@@ -6,7 +6,4 @@
             <corners android:radius="30dp" />
         </shape>
     </item>
-    <item android:gravity="top|end" android:width="170dp" android:height="170dp" android:top="-40dp" android:right="-40dp">
-        <shape android:shape="oval"><solid android:color="#38FFFFFF" /></shape>
-    </item>
 </layer-list>

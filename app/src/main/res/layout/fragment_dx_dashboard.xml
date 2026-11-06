@@ -209,6 +209,8 @@
                 android:max="100"
                 app:indicatorColor="@color/dx_lilac"
                 app:trackColor="#1AFFFFFF"
+                app:trackStopIndicatorSize="0dp"
+                app:indicatorTrackGapSize="0dp"
                 app:trackCornerRadius="8dp"
                 app:trackThickness="8dp" />
 
@@ -242,6 +244,8 @@
                 android:max="100"
                 app:indicatorColor="@color/dx_pink"
                 app:trackColor="#1AFFFFFF"
+                app:trackStopIndicatorSize="0dp"
+                app:indicatorTrackGapSize="0dp"
                 app:trackCornerRadius="8dp"
                 app:trackThickness="8dp" />
         </LinearLayout>
