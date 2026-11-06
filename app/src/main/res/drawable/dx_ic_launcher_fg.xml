@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Xok Manager: monograma "xk" (Sora ExtraBold, OFL) + ponto amarelo -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#1A1333"
+        android:pathData="M25 68.51 32.82 54.214 32.628 55.462 25.24 42.029H34.643L38.912 50.712H39.68L43.71 42.029H52.537L45.485 55.701L45.677 54.646L53.976 68.51H44.573L39.392 59.251H38.624L33.827 68.51ZM73.261 68.51 65.442 56.133H61.892L72.254 42.029H81.369L71.534 55.318V51.096L83 68.51ZM54.456 68.51V33.49H63.187V68.51Z" />
+    <path
+        android:fillColor="#F3E58F"
+        android:pathData="M77,77m-4.2,0a4.2,4.2 0,1 1,8.4 0a4.2,4.2 0,1 1,-8.4 0" />
+</vector>
