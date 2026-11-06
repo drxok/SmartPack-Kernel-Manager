@@ -44,6 +44,9 @@ import com.smartpack.kernelmanager.views.dialog.Dialog;
 import com.smartpack.kernelmanager.views.recyclerview.CardView;
 import com.smartpack.kernelmanager.views.recyclerview.DescriptionView;
 import com.smartpack.kernelmanager.views.recyclerview.DxChipsView;
+import com.smartpack.kernelmanager.utils.root.Control;
+import com.smartpack.kernelmanager.views.recyclerview.SeekBarView;
+import com.smartpack.kernelmanager.views.recyclerview.DxClusterHeroView;
 import com.smartpack.kernelmanager.views.recyclerview.GenericSelectView;
 import com.smartpack.kernelmanager.views.recyclerview.RecyclerViewItem;
 import com.smartpack.kernelmanager.views.recyclerview.SelectView;
@@ -67,6 +70,7 @@ public class CPUFragment extends RecyclerViewFragment {
     private SelectView mCPUMinBig;
     private SelectView mCPUMaxScreenOffBig;
     private DxChipsView mCPUGovernorBig;
+    private DxClusterHeroView mHeroBig, mHeroLITTLE;
 
     private XYGraphView mCPUUsageMid;
     private SelectView mCPUMaxMid;
@@ -132,16 +136,10 @@ public class CPUFragment extends RecyclerViewFragment {
             cpuCard.setTitle(getString(R.string.cpu));
         }
 
-        mCPUUsageBig = new XYGraphView();
-        if (mCPUFreq.isBigLITTLE()) {
-            mCPUUsageBig.setTitle(getString(R.string.dx_usage_now));
-        } else {
-            mCPUUsageBig.setTitle(getString(R.string.cpu_usage));
-        }
-
-        cpuCard.addItem(mCPUUsageBig);
-
+        // Kernel Dr.xok: no lugar do gráfico de uso, o cartão de destaque do grupo
         final List<Integer> bigCores = mCPUFreq.getBigCpuRange();
+        mHeroBig = makeHero(mCPUFreq.isBigLITTLE() ? getString(R.string.dx_cluster_big_t) : getString(R.string.cpu),
+                bigCores, mCPUFreq.getBigCpu(), R.color.dx_lilac, R.color.dx_ink);
 
         mCoresBig.clear();
         for (final int core : bigCores) {
@@ -178,18 +176,16 @@ public class CPUFragment extends RecyclerViewFragment {
             cpuCard.addItem(mCPUMaxScreenOffBig);
         }
 
-        if (mCPUFreq.isBigLITTLE()) {
-            cpuCard.setTitle(getString(R.string.dx_cluster_big_t));
-        }
+        cpuCard.setTitle(getString(R.string.dx_advanced, mCPUFreq.isBigLITTLE()
+                ? getString(R.string.dx_cluster_big_t) : getString(R.string.cpu)));
 
         mCPUGovernorBig = new DxChipsView();
-        mCPUGovernorBig.setTitle(getString(R.string.cpu_governor));
-        mCPUGovernorBig.setSummary(getString(R.string.cpu_governor_summary));
+        mCPUGovernorBig.setTitle(getString(R.string.dx_governor));
+        mCPUGovernorBig.setStandalone(true);
         mCPUGovernorBig.setItems(mCPUFreq.getGovernors());
         labelGovernors(mCPUGovernorBig);
         mCPUGovernorBig.setOnItemSelected((selectView, position, item) -> mCPUFreq.setGovernor(item, bigCores.get(0), bigCores.get(bigCores.size() - 1),
                 getActivity()));
-        cpuCard.addItem(mCPUGovernorBig);
 
         DescriptionView governorTunablesBig = new DescriptionView();
         governorTunablesBig.setTitle(getString(R.string.cpu_governor_tunables));
@@ -197,6 +193,10 @@ public class CPUFragment extends RecyclerViewFragment {
         governorTunablesBig.setOnItemClickListener(item -> showGovernorTunables(bigCores.get(0), bigCores.get(bigCores.size() - 1)));
         cpuCard.addItem(governorTunablesBig);
 
+        items.add(mHeroBig);
+        items.add(mCPUGovernorBig);
+        addEcoCard(items, mCPUFreq.getBigCpu(), mCPUFreq.isBigLITTLE() ? getString(R.string.dx_cluster_big_t) : null,
+                R.color.dx_pink, R.color.dx_pink_ink);
         items.add(cpuCard);
 
         if (mCPUFreq.isBigLITTLE()) {
@@ -275,12 +275,10 @@ public class CPUFragment extends RecyclerViewFragment {
             CardView cpuLITTLECard = new CardView(getActivity());
             cpuLITTLECard.setTitle(getString(R.string.dx_cluster_little_t));
 
-            mCPUUsageLITTLE = new XYGraphView();
-            mCPUUsageLITTLE.setTitle(getString(R.string.dx_usage_now));
-
-            cpuLITTLECard.addItem(mCPUUsageLITTLE);
-
             final List<Integer> LITTLECores = mCPUFreq.getLITTLECpuRange();
+            mHeroLITTLE = makeHero(getString(R.string.dx_cluster_little_t), LITTLECores,
+                    mCPUFreq.getLITTLECpu(), R.color.dx_mint, R.color.dx_mint_ink);
+            cpuLITTLECard.setTitle(getString(R.string.dx_advanced, getString(R.string.dx_cluster_little_t)));
 
             mCoresLITTLE.clear();
             for (final int core : LITTLECores) {
@@ -318,13 +316,12 @@ public class CPUFragment extends RecyclerViewFragment {
             }
 
             mCPUGovernorLITTLE = new DxChipsView();
-            mCPUGovernorLITTLE.setTitle(getString(R.string.cpu_governor));
-            mCPUGovernorLITTLE.setSummary(getString(R.string.cpu_governor_summary));
+            mCPUGovernorLITTLE.setTitle(getString(R.string.dx_governor));
+            mCPUGovernorLITTLE.setStandalone(true);
             mCPUGovernorLITTLE.setItems(mCPUFreq.getGovernors());
         labelGovernors(mCPUGovernorLITTLE);
             mCPUGovernorLITTLE.setOnItemSelected((selectView, position, item) -> mCPUFreq.setGovernor(item, LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1),
                     getActivity()));
-            cpuLITTLECard.addItem(mCPUGovernorLITTLE);
 
             DescriptionView governorTunablesLITTLE = new DescriptionView();
             governorTunablesLITTLE.setTitle(getString(R.string.cpu_governor_tunables));
@@ -332,6 +329,10 @@ public class CPUFragment extends RecyclerViewFragment {
             governorTunablesLITTLE.setOnItemClickListener(item -> showGovernorTunables(LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1)));
             cpuLITTLECard.addItem(governorTunablesLITTLE);
 
+            items.add(mHeroLITTLE);
+            items.add(mCPUGovernorLITTLE);
+            addEcoCard(items, mCPUFreq.getLITTLECpu(), getString(R.string.dx_cluster_little_t),
+                    R.color.dx_mint, R.color.dx_mint_ink);
             items.add(cpuLITTLECard);
         }
     }
@@ -657,6 +658,8 @@ public class CPUFragment extends RecyclerViewFragment {
         }
 
         if (mCPUFreqs != null) {
+            pushHero(mHeroBig, mCPUFreq.getBigCpuRange());
+            if (mCPUFreq.isBigLITTLE()) pushHero(mHeroLITTLE, mCPUFreq.getLITTLECpuRange());
             refreshCores(mCoresBig, mCPUFreqs);
             if (mCPUFreq.isBigLITTLE()) {
                 refreshCores(mCoresLITTLE, mCPUFreqs);
@@ -720,6 +723,96 @@ public class CPUFragment extends RecyclerViewFragment {
             view.setItemLabel("schedutil", getString(R.string.drxok_gov_eco));
             view.setItemLabel("schedutil_orig", getString(R.string.drxok_gov_orig));
         }
+    }
+
+
+    // ------------------------------------------------------------ Kernel Dr.xok
+
+    private DxClusterHeroView makeHero(String title, List<Integer> cores, int cpu, int bgRes, int inkRes) {
+        List<Integer> freqs = mCPUFreq.getFreqs(cpu);
+        int min = freqs != null && !freqs.isEmpty() ? freqs.get(0) : 0;
+        int max = freqs != null && !freqs.isEmpty() ? freqs.get(freqs.size() - 1) : 0;
+        String badge = cores.isEmpty() ? null : (cores.get(0) + 1) + "–" + (cores.get(cores.size() - 1) + 1);
+        DxClusterHeroView hero = new DxClusterHeroView();
+        hero.setColors(bgRes, inkRes);
+        hero.setInfo(title, badge, getString(R.string.dx_mhz_now),
+                getString(R.string.dx_min_mhz, min / 1000), getString(R.string.dx_max_mhz, max / 1000), max);
+        hero.setFullSpan(true);
+        return hero;
+    }
+
+    private void pushHero(DxClusterHeroView hero, List<Integer> cores) {
+        if (hero == null) return;
+        int cur = 0;
+        for (int core : cores) {
+            if (core < mCPUFreqs.length) cur = Math.max(cur, mCPUFreqs[core]);
+        }
+        hero.push(cur);
+    }
+
+    /** Ajustes do governador eco direto na tela (só aparece com o kernel Dr.xok) */
+    private void addEcoCard(List<RecyclerViewItem> items, int cpu, String group, int accentRes, int inkRes) {
+        final String base = "/sys/devices/system/cpu/cpu" + cpu + "/cpufreq/schedutil/";
+        final String effPath = base + "efficient_freq";
+        final String delayPath = base + "up_delay_us";
+        if (!Utils.existFile(effPath)) return;
+
+        CardView eco = new CardView(getActivity());
+        eco.setTitle(group == null ? getString(R.string.dx_eco_title) : getString(R.string.dx_eco_title_group, group));
+
+        final List<Integer> freqs = mCPUFreq.getFreqs(cpu);
+        if (freqs != null && !freqs.isEmpty()) {
+            List<String> labels = new java.util.ArrayList<>();
+            labels.add(getString(R.string.dx_off));
+            for (int f : freqs) labels.add((f / 1000) + " MHz");
+            int cur = Utils.strToInt(Utils.readFile(effPath));
+            int pos = 0;
+            for (int i = 0; i < freqs.size(); i++) if (freqs.get(i) == cur) pos = i + 1;
+
+            SeekBarView eff = new SeekBarView();
+            eff.setTitle(getString(R.string.dx_t_efficient_freq));
+            eff.setSummary(getString(R.string.dx_t_efficient_freq_d));
+            eff.setItems(labels);
+            eff.setProgress(pos);
+            eff.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+                @Override
+                public void onStop(SeekBarView seekBarView, int position, String value) {
+                    String v = position == 0 ? "0" : String.valueOf(freqs.get(position - 1));
+                    Control.runSetting(Control.write(v, effPath), ApplyOnBootFragment.CPU, effPath, getActivity());
+                }
+
+                @Override
+                public void onMove(SeekBarView seekBarView, int position, String value) {
+                }
+            });
+            eco.addItem(eff);
+        }
+
+        if (Utils.existFile(delayPath)) {
+            List<String> delays = new java.util.ArrayList<>();
+            for (int ms = 0; ms <= 200; ms += 5) delays.add(ms + " ms");
+            int curMs = Utils.strToInt(Utils.readFile(delayPath)) / 1000;
+
+            SeekBarView delay = new SeekBarView();
+            delay.setTitle(getString(R.string.dx_t_up_delay));
+            delay.setSummary(getString(R.string.dx_t_up_delay_short));
+            delay.setItems(delays);
+            delay.setProgress(Math.max(0, Math.min(40, Math.round(curMs / 5f))));
+            delay.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+                @Override
+                public void onStop(SeekBarView seekBarView, int position, String value) {
+                    String v = String.valueOf(position * 5 * 1000);
+                    Control.runSetting(Control.write(v, delayPath), ApplyOnBootFragment.CPU, delayPath, getActivity());
+                }
+
+                @Override
+                public void onMove(SeekBarView seekBarView, int position, String value) {
+                }
+            });
+            eco.addItem(delay);
+        }
+
+        if (eco.size() > 0) items.add(eco);
     }
 
 }

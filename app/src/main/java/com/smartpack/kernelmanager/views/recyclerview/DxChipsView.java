@@ -40,6 +40,18 @@ public class DxChipsView extends RecyclerViewItem {
     private int mAccentInkRes = R.color.dx_pink_ink;
     private OnItemSelected mOnItemSelected;
     private boolean mBinding;
+    private boolean mStandalone;
+
+    /** fora de cartão: ganha margem lateral como o resto da tela */
+    public void setStandalone(boolean standalone) {
+        mStandalone = standalone;
+        setFullSpan(standalone);
+    }
+
+    @Override
+    protected boolean cardCompatible() {
+        return !mStandalone;
+    }
 
     @Override
     public int getLayoutRes() {
@@ -51,6 +63,10 @@ public class DxChipsView extends RecyclerViewItem {
         mTitle = view.findViewById(R.id.title);
         mSummary = view.findViewById(R.id.summary);
         mChips = view.findViewById(R.id.chips);
+        if (mStandalone) {
+            int p = (int) (16 * view.getResources().getDisplayMetrics().density);
+            view.setPadding(p, p / 2, p, p / 2);
+        }
         super.onCreateView(view);
     }
 

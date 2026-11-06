@@ -1253,4 +1253,12 @@
     <string name="dx_health_pct">saúde %1$d%%</string>
     <string name="dx_boeffla">bloqueador Boeffla</string>
     <string name="dx_on">ligado</string>
+    <string name="dx_advanced">%1$s: avançado</string>
+    <string name="dx_mhz_now">MHz agora</string>
+    <string name="dx_min_mhz">mín. %1$d</string>
+    <string name="dx_max_mhz">máx. %1$d MHz</string>
+    <string name="dx_eco_title">Ajustes do eco</string>
+    <string name="dx_eco_title_group">Ajustes do eco · %1$s</string>
+    <string name="dx_t_up_delay_short">Quanto tempo a carga precisa durar antes de passar da frequência econômica.</string>
+    <string name="dx_governor">Governador</string>
 </resources>
