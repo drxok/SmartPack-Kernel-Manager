@@ -153,7 +153,9 @@ public class DashboardFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (isHidden()) return;
         mRunning = true;
+        mHandler.removeCallbacks(mTick);
         mHandler.post(mTick);
     }
 
@@ -162,6 +164,14 @@ public class DashboardFragment extends BaseFragment {
         super.onPause();
         mRunning = false;
         mHandler.removeCallbacks(mTick);
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        mHandler.removeCallbacks(mTick);
+        mRunning = !hidden && isResumed();
+        if (mRunning) mHandler.post(mTick);
     }
 
     @Override

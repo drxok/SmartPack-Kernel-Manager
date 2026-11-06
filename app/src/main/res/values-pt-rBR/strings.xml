@@ -1248,4 +1248,9 @@
     <string name="dx_cluster_little_t">Núcleos pequenos</string>
     <string name="dx_cluster_mid_t">Núcleos médios</string>
     <string name="dx_usage_now">Uso agora</string>
+    <string name="dx_no_limit_short">sem limite</string>
+    <string name="dx_limit_pct">limite %1$d%%</string>
+    <string name="dx_health_pct">saúde %1$d%%</string>
+    <string name="dx_boeffla">bloqueador Boeffla</string>
+    <string name="dx_on">ligado</string>
 </resources>

@@ -31,6 +31,18 @@ import com.smartpack.kernelmanager.fragments.kernel.BatteryFragment;
 import com.smartpack.kernelmanager.fragments.kernel.CPUFragment;
 import com.smartpack.kernelmanager.fragments.kernel.GPUFragment;
 import com.smartpack.kernelmanager.fragments.kernel.VMFragment;
+import com.smartpack.kernelmanager.fragments.kernel.IOFragment;
+import com.smartpack.kernelmanager.fragments.kernel.KSMFragment;
+import com.smartpack.kernelmanager.fragments.kernel.ScreenFragment;
+import com.smartpack.kernelmanager.fragments.kernel.WakelockFragment;
+import com.smartpack.kernelmanager.fragments.kernel.EntropyFragment;
+import com.smartpack.kernelmanager.utils.DxInfo;
+import com.smartpack.kernelmanager.utils.kernel.battery.Battery;
+
+import android.os.Handler;
+import android.os.Looper;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +63,30 @@ public class SectionsFragment extends BaseFragment {
             CPUFragment.class, GPUFragment.class, BatteryFragment.class, VMFragment.class
     };
     private static final int[][] FEATURED_COLORS = {
-            {R.color.dx_lilac, R.color.dx_ink, R.string.dx_feat_cpu},
-            {R.color.dx_pink, R.color.dx_pink_ink, R.string.dx_feat_gpu},
-            {R.color.dx_mint, R.color.dx_mint_ink, R.string.dx_feat_battery},
-            {R.color.dx_butter, R.color.dx_butter_ink, R.string.dx_feat_memory},
+            {R.color.dx_lilac, R.color.dx_ink, R.string.dx_feat_cpu, R.drawable.dx_ic_cpu, R.string.cpu},
+            {R.color.dx_pink, R.color.dx_pink_ink, R.string.dx_feat_gpu, R.drawable.dx_ic_gpu, R.string.gpu},
+            {R.color.dx_mint, R.color.dx_mint_ink, R.string.dx_feat_battery, R.drawable.dx_ic_battery, R.string.battery},
+            {R.color.dx_butter, R.color.dx_butter_ink, R.string.dx_feat_memory, R.drawable.dx_ic_memory, R.string.memory},
     };
+
+    /** cores das caixinhas de ícone da lista, em rodízio */
+    private static final int[][] ROW_COLORS = {
+            {0x2EC9B8FF, R.color.dx_lilac}, {0x2EF7B8D8, R.color.dx_pink},
+            {0x2EB6EBC7, R.color.dx_mint}, {0x2EF3E58F, R.color.dx_butter},
+    };
+
+    /** ícones de contorno para as seções do kernel mais usadas */
+    private static final Map<Class<?>, Integer> OUTLINE_ICONS = new HashMap<>();
+    static {
+        OUTLINE_ICONS.put(IOFragment.class, R.drawable.dx_ic_doc);
+        OUTLINE_ICONS.put(ScreenFragment.class, R.drawable.dx_ic_clock);
+        OUTLINE_ICONS.put(WakelockFragment.class, R.drawable.dx_ic_lock);
+        OUTLINE_ICONS.put(KSMFragment.class, R.drawable.dx_ic_merge);
+        OUTLINE_ICONS.put(DashboardFragment.class, R.drawable.dx_ic_dashboard);
+    }
+
+    private final Map<Class<?>, MaterialTextView> mSubtitles = new HashMap<>();
+    private final Handler mMain = new Handler(Looper.getMainLooper());
 
     @Nullable
     @Override
@@ -74,6 +105,7 @@ public class SectionsFragment extends BaseFragment {
         headline.setText(title);
 
         build();
+        loadSubtitles();
 
         EditText search = root.findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
@@ -130,9 +162,18 @@ public class SectionsFragment extends BaseFragment {
             mFeatured.addView(row);
         }
 
-        // demais seções, agrupadas
-        MaterialTextView header = null;
+        // demais seções, agrupadas (o grupo "Kernel" vem primeiro, como no mockup)
+        List<NavigationActivity.NavigationFragment> ordered = new ArrayList<>();
+        List<NavigationActivity.NavigationFragment> rest = new ArrayList<>();
+        boolean inKernel = false;
         for (NavigationActivity.NavigationFragment nf : fragments) {
+            if (nf.mFragmentClass == null) inKernel = nf.mId == R.string.kernel;
+            (inKernel ? ordered : rest).add(nf);
+        }
+        ordered.addAll(rest);
+        MaterialTextView header = null;
+        int rowIndex = 0;
+        for (NavigationActivity.NavigationFragment nf : ordered) {
             if (nf.mFragmentClass == null) {
                 header = sectionHeader(c, getString(nf.mId));
                 continue;
@@ -145,7 +186,7 @@ public class SectionsFragment extends BaseFragment {
                 mHeaders.add(header);
                 header = null;
             }
-            View row = listRow(c, nf);
+            View row = listRow(c, nf, rowIndex++);
             mList.addView(row);
             mRows.add(row);
             mRowNames.add(getString(nf.mId).toLowerCase(Locale.getDefault()));
@@ -181,7 +222,7 @@ public class SectionsFragment extends BaseFragment {
         card.setOnClickListener(v -> nav().openSection(nf.mFragmentClass));
 
         AppCompatImageView icon = new AppCompatImageView(c);
-        if (nf.getDrawable() != 0) icon.setImageResource(nf.getDrawable());
+        icon.setImageResource(colors[3]);
         icon.setImageTintList(ColorStateList.valueOf(ink));
         card.addView(icon, new LinearLayout.LayoutParams(dp(26), dp(26)));
 
@@ -189,7 +230,7 @@ public class SectionsFragment extends BaseFragment {
         card.addView(space, new LinearLayout.LayoutParams(1, 0, 1f));
 
         MaterialTextView title = new MaterialTextView(c);
-        title.setText(nf.mId);
+        title.setText(colors[4]);
         title.setTextColor(ink);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         title.setTypeface(ResourcesCompat.getFont(c, R.font.sora_bold));
@@ -199,7 +240,9 @@ public class SectionsFragment extends BaseFragment {
         sub.setText(colors[2]);
         sub.setTextColor(ink);
         sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        sub.setMaxLines(2);
         card.addView(sub);
+        mSubtitles.put(nf.mFragmentClass, sub);
         return card;
     }
 
@@ -220,13 +263,15 @@ public class SectionsFragment extends BaseFragment {
         return h;
     }
 
-    private View listRow(Context c, NavigationActivity.NavigationFragment nf) {
+    private View listRow(Context c, NavigationActivity.NavigationFragment nf, int index) {
+        int[] rc = ROW_COLORS[index % ROW_COLORS.length];
+
         LinearLayout row = new LinearLayout(c);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setBackgroundResource(R.drawable.dx_glass);
         row.setPadding(dp(12), dp(10), dp(14), dp(10));
-        row.setMinimumHeight(dp(60));
+        row.setMinimumHeight(dp(64));
         row.setClickable(true);
         row.setFocusable(true);
         if (android.os.Build.VERSION.SDK_INT >= 23) row.setForeground(ContextCompat.getDrawable(c, selectable(c)));
@@ -238,20 +283,34 @@ public class SectionsFragment extends BaseFragment {
 
         AppCompatImageView icon = new AppCompatImageView(c);
         icon.setBackgroundResource(R.drawable.dx_icon_box);
+        icon.setBackgroundTintList(ColorStateList.valueOf(rc[0]));
         int pad = dp(10);
         icon.setPadding(pad, pad, pad, pad);
-        if (nf.getDrawable() != 0) icon.setImageResource(nf.getDrawable());
-        icon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(c, R.color.dx_lilac)));
+        Integer outline = OUTLINE_ICONS.get(nf.mFragmentClass);
+        if (outline != null) icon.setImageResource(outline);
+        else if (nf.getDrawable() != 0) icon.setImageResource(nf.getDrawable());
+        icon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(c, rc[1])));
         row.addView(icon, new LinearLayout.LayoutParams(dp(40), dp(40)));
+
+        LinearLayout texts = new LinearLayout(c);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        tp.leftMargin = dp(14);
+        row.addView(texts, tp);
 
         MaterialTextView title = new MaterialTextView(c);
         title.setText(nf.mId);
         title.setTextColor(ContextCompat.getColor(c, R.color.dx_text));
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        title.setTypeface(ResourcesCompat.getFont(c, R.font.inter_semibold));
-        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        tp.leftMargin = dp(14);
-        row.addView(title, tp);
+        title.setTypeface(ResourcesCompat.getFont(c, R.font.sora_bold));
+        texts.addView(title);
+
+        MaterialTextView sub = new MaterialTextView(c);
+        sub.setTextColor(ContextCompat.getColor(c, R.color.dx_text_muted));
+        sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        sub.setVisibility(View.GONE);
+        texts.addView(sub);
+        mSubtitles.put(nf.mFragmentClass, sub);
 
         AppCompatImageView chevron = new AppCompatImageView(c);
         chevron.setImageResource(R.drawable.dx_ic_chevron);
@@ -259,6 +318,77 @@ public class SectionsFragment extends BaseFragment {
         chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(chevron, new LinearLayout.LayoutParams(dp(18), dp(18)));
         return row;
+    }
+
+    /** legendas com o estado atual de cada seção (lidas em segundo plano) */
+    private void loadSubtitles() {
+        final android.content.Context app = requireContext().getApplicationContext();
+        final float hz = requireActivity().getWindowManager().getDefaultDisplay().getRefreshRate();
+        new Thread(() -> {
+            Map<Class<?>, String> info = new HashMap<>();
+            try {
+                // CPU: governador e frequência máxima do grupo mais forte
+                int best = 0; String gov = "";
+                for (int n = 0; n < 16; n++) {
+                    String p = "/sys/devices/system/cpu/cpufreq/policy" + n;
+                    if (!new java.io.File(p).exists()) continue;
+                    int max = DxInfo.readInt(p + "/cpuinfo_max_freq");
+                    if (max > best) { best = max; gov = DxInfo.read(p + "/scaling_governor"); }
+                }
+                if (best > 0) {
+                    boolean eco = gov.equals("schedutil")
+                            && DxInfo.exists("/sys/devices/system/cpu/cpufreq/policy0/schedutil/efficient_freq");
+                    info.put(CPUFragment.class, (eco ? "schedutil eco" : gov) + " · " + best / 1000 + " MHz");
+                }
+                // GPU: modelo e máximo
+                String model = DxInfo.read("/sys/class/kgsl/kgsl-3d0/gpu_model");
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d{3})").matcher(model);
+                int gmax = DxInfo.readInt("/sys/class/kgsl/kgsl-3d0/max_gpuclk") / 1000000;
+                if (gmax > 0) info.put(GPUFragment.class, (m.find() ? "Adreno " + m.group(1) + " · " : "") + gmax + " MHz");
+                // Bateria: limite e saúde
+                StringBuilder bat = new StringBuilder();
+                if (Battery.hasDrxokChargeLimit()) {
+                    int lim = Battery.getDrxokChargeLimit();
+                    bat.append(lim >= 100 ? app.getString(R.string.dx_no_limit_short) : app.getString(R.string.dx_limit_pct, lim));
+                }
+                int full = Battery.getChargeFullMah();
+                int design = Battery.getInstance(app).getDesignMah();
+                if (full > 0 && design > 0) {
+                    if (bat.length() > 0) bat.append(" · ");
+                    bat.append(app.getString(R.string.dx_health_pct, Math.round(full * 100f / design)));
+                }
+                if (bat.length() > 0) info.put(BatteryFragment.class, bat.toString());
+                // Memória: ZRAM e swappiness
+                String algo = DxInfo.bracketed(DxInfo.read("/sys/block/zram0/comp_algorithm"));
+                int sw = DxInfo.readInt("/proc/sys/vm/swappiness");
+                info.put(VMFragment.class, (algo.isEmpty() ? "" : "ZRAM " + algo + " · ") + "swappiness " + sw);
+                // I/O
+                String sched = DxInfo.bracketed(DxInfo.read("/sys/block/mmcblk0/queue/scheduler"));
+                if (!sched.isEmpty()) info.put(IOFragment.class, sched);
+                // Tela
+                if (hz > 0) info.put(ScreenFragment.class, Math.round(hz) + " Hz");
+                // Wakelocks
+                if (DxInfo.exists("/sys/class/misc/boeffla_wakelock_blocker"))
+                    info.put(WakelockFragment.class, app.getString(R.string.dx_boeffla));
+                // KSM
+                if (DxInfo.exists("/sys/kernel/mm/ksm/run"))
+                    info.put(KSMFragment.class, app.getString(DxInfo.readInt("/sys/kernel/mm/ksm/run") == 1 ? R.string.dx_on : R.string.dx_off));
+                // Entropia
+                int ent = DxInfo.readInt("/proc/sys/kernel/random/entropy_avail");
+                if (ent > 0) info.put(EntropyFragment.class, String.valueOf(ent));
+            } catch (Exception ignored) {
+            }
+            mMain.post(() -> {
+                if (!isAdded()) return;
+                for (Map.Entry<Class<?>, String> e : info.entrySet()) {
+                    MaterialTextView tv = mSubtitles.get(e.getKey());
+                    if (tv != null && e.getValue() != null && !e.getValue().isEmpty()) {
+                        tv.setText(e.getValue());
+                        tv.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }, "dx-sections").start();
     }
 
     private void filter(String query) {

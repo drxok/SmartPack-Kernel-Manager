@@ -1247,4 +1247,9 @@
     <string name="dx_cluster_little_t">Little cores</string>
     <string name="dx_cluster_mid_t">Middle cores</string>
     <string name="dx_usage_now">Usage now</string>
+    <string name="dx_no_limit_short">no limit</string>
+    <string name="dx_limit_pct">limit %1$d%%</string>
+    <string name="dx_health_pct">health %1$d%%</string>
+    <string name="dx_boeffla">Boeffla blocker</string>
+    <string name="dx_on">on</string>
 </resources>

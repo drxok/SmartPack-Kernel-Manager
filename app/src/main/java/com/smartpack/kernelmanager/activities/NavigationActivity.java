@@ -486,11 +486,43 @@ public class NavigationActivity extends BaseActivity
             String openedName = fragment.getClass().getSimpleName() + "_opened";
             Prefs.saveInt(openedName, Prefs.getInt(openedName, 0, this) + 1, this);
         }
-        setShortcuts();
+        if (!mShortcutsDone) {
+            mShortcutsDone = true;
+            mHandler.postDelayed(() -> new Thread(() -> {
+                try {
+                    setShortcuts();
+                } catch (Exception ignored) {
+                }
+            }).start(), 4000);
+        }
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment,
-                res + "_key").commitAllowingStateLoss();
+        // Kernel Dr.xok: as telas abertas ficam guardadas (mostrar/esconder em vez de recriar)
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction().setReorderingAllowed(true);
+        ft.setCustomAnimations(R.anim.dx_fade_in, R.anim.dx_fade_out);
+        String tag = res + "_key";
+        for (Fragment f : fm.getFragments()) {
+            if (f != fragment && f.getTag() != null && f.getTag().endsWith("_key") && !f.isHidden()) {
+                ft.hide(f);
+            }
+        }
+        if (fragment.isAdded()) {
+            ft.show(fragment);
+        } else {
+            ft.add(R.id.content_frame, fragment, tag);
+        }
+        mRecent.remove(tag);
+        mRecent.addLast(tag);
+        while (mRecent.size() > DX_CACHE) {
+            Fragment old = fm.findFragmentByTag(mRecent.removeFirst());
+            if (old != null && old != fragment) ft.remove(old);
+        }
+        ft.commitAllowingStateLoss();
     }
+
+    private static final int DX_CACHE = 5;
+    private final java.util.ArrayDeque<String> mRecent = new java.util.ArrayDeque<>();
+    private boolean mShortcutsDone;
 
     private Fragment getFragment(int res) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -517,7 +549,7 @@ public class NavigationActivity extends BaseActivity
             DashboardFragment.class, SectionsFragment.class, CPUFragment.class, BatteryFragment.class
     };
     private static final int[] DX_TAB_IDS = {R.id.dx_tab_dashboard, R.id.dx_tab_sections, R.id.dx_tab_cpu, R.id.dx_tab_battery};
-    private static final int[] DX_TAB_ICONS = {R.drawable.ic_dashboard, R.drawable.dx_ic_grid, R.drawable.ic_cpu, R.drawable.ic_battery};
+    private static final int[] DX_TAB_ICONS = {R.drawable.dx_ic_dashboard, R.drawable.dx_ic_grid, R.drawable.dx_ic_cpu, R.drawable.dx_ic_battery};
     private static final int[] DX_TAB_LABELS = {R.string.dx_dashboard, R.string.dx_sections, R.string.cpu, R.string.battery};
 
     @SuppressWarnings("unchecked")

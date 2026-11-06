@@ -259,28 +259,12 @@ public abstract class RecyclerViewFragment extends BaseFragment {
                     public void run() {
                         Activity activity = fragment.getActivity();
                         if (fragment.isAdded() && activity != null) {
-                            fragment.mRecyclerView.startAnimation(AnimationUtils.loadAnimation(
-                                    activity, R.anim.slide_in_bottom));
-
-                            int cx = fragment.mViewPager.getWidth();
-
-                            SupportAnimator animator = ViewAnimationUtils.createCircularReveal(
-                                    fragment.mViewPager, cx / 2, 0, 0, cx);
-                            animator.addListener(new SupportAnimator.SimpleAnimatorListener() {
-                                @Override
-                                public void onAnimationStart() {
-                                    super.onAnimationStart();
-                                    fragment.mViewPager.setVisibility(View.VISIBLE);
-                                }
-
-                                @Override
-                                public void onAnimationEnd() {
-                                    super.onAnimationEnd();
-                                    fragment.mViewPagerShadow.setVisibility(View.VISIBLE);
-                                }
-                            });
-                            animator.setDuration(400);
-                            animator.start();
+                            // Kernel Dr.xok: entrada curta e leve (antes: deslize + revelação de 400 ms)
+                            fragment.mRecyclerView.setAlpha(0f);
+                            fragment.mRecyclerView.setTranslationY(24 * activity.getResources().getDisplayMetrics().density);
+                            fragment.mRecyclerView.animate().alpha(1f).translationY(0f).setDuration(180).start();
+                            fragment.mViewPager.setVisibility(View.VISIBLE);
+                            fragment.mViewPagerShadow.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -696,9 +680,33 @@ public abstract class RecyclerViewFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (!isHidden()) startRefresh();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopRefresh();
+    }
+
+    // Kernel Dr.xok: tela escondida não fica lendo o kernel em segundo plano
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (hidden) {
+            stopRefresh();
+        } else {
+            startRefresh();
+            if (mAppBarLayout != null) {
+                mAppBarLayout.setTranslationY(mScroller != null ? -mScroller.mAppBarLayoutDistance : 0);
+            }
+        }
+    }
+
+    private void startRefresh() {
         if (mPoolExecutor == null) {
             mPoolExecutor = new ScheduledThreadPoolExecutor(1);
-            mPoolExecutor.scheduleWithFixedDelay(mScheduler, 0, 500,
+            mPoolExecutor.scheduleWithFixedDelay(mScheduler, 0, 1000,
                     TimeUnit.MILLISECONDS);
         }
         for (RecyclerViewItem item : mItems) {
@@ -706,9 +714,7 @@ public abstract class RecyclerViewFragment extends BaseFragment {
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
+    private void stopRefresh() {
         if (mPoolExecutor != null) {
             mPoolExecutor.shutdown();
             mPoolExecutor = null;
