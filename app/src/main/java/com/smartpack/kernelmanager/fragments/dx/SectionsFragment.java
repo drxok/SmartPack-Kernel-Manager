@@ -380,6 +380,14 @@ public class SectionsFragment extends BaseFragment {
                 // KSM
                 if (DxInfo.exists("/sys/kernel/mm/ksm/run"))
                     info.put(KSMFragment.class, app.getString(DxInfo.readInt("/sys/kernel/mm/ksm/run") == 1 ? R.string.dx_on : R.string.dx_off));
+                // Perfil térmico (Dr.xok)
+                if (com.smartpack.kernelmanager.utils.DxKernel.hasThermalProfile()) {
+                    int tp = com.smartpack.kernelmanager.utils.DxKernel.getThermalProfile();
+                    int[] tn = {R.string.dx_thermal_cool, R.string.dx_thermal_normal, R.string.dx_thermal_game};
+                    info.put(com.smartpack.kernelmanager.fragments.kernel.ThermalFragment.class,
+                            app.getString(R.string.dx_thermal_profile) + " · "
+                                    + app.getString(tn[Math.max(0, Math.min(2, tp))]));
+                }
                 // Entropia
                 int ent = DxInfo.readInt("/proc/sys/kernel/random/entropy_avail");
                 if (ent > 0) info.put(EntropyFragment.class, String.valueOf(ent));

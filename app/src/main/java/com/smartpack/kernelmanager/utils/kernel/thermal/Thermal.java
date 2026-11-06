@@ -25,7 +25,8 @@ package com.smartpack.kernelmanager.utils.kernel.thermal;
 public class Thermal {
 
     public static boolean supported() {
-        return Thermald.supported() || MSMThermal.getInstance().supported() || MSMThermalSimple.supported();
+        return Thermald.supported() || MSMThermal.getInstance().supported() || MSMThermalSimple.supported()
+                || com.smartpack.kernelmanager.utils.DxKernel.hasThermalProfile();
     }
 
 }

@@ -22,6 +22,7 @@ package com.smartpack.kernelmanager.fragments.kernel;
 import android.text.InputType;
 
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxKernel;
 import com.smartpack.kernelmanager.fragments.ApplyOnBootFragment;
 import com.smartpack.kernelmanager.fragments.RecyclerViewFragment;
 import com.smartpack.kernelmanager.utils.Prefs;
@@ -134,6 +135,16 @@ public class VMFragment extends RecyclerViewFragment {
         }
     }
 
+    /** Kernel Dr.xok: quanto o dedup já economizou */
+    private String dedupSummary() {
+        long[] st = DxKernel.dedupStat();
+        long net = st[1] - st[2];
+        String base = getString(R.string.dx_dedup_summary);
+        if (st[0] <= 0) return base;
+        return base + "\n" + getString(R.string.dx_dedup_saved, st[0],
+                Math.max(0, net) / (1024f * 1024f));
+    }
+
     private void zramInit(List<RecyclerViewItem> items) {
         CardView zRAM = new CardView(getActivity());
         zRAM.setTitle(getString(R.string.zram));
@@ -178,6 +189,18 @@ public class VMFragment extends RecyclerViewFragment {
             });
 
             zRAM.addItem(zramAlgo);
+        }
+
+        if (DxKernel.hasDedup()) {
+            SwitchView dedup = new SwitchView();
+            dedup.setTitle(getString(R.string.dx_dedup));
+            dedup.setSummary(dedupSummary());
+            dedup.setChecked(DxKernel.isDedup());
+            dedup.addOnSwitchListener((switchView, isChecked) -> {
+                DxKernel.setDedup(isChecked, getActivity());
+                getHandler().postDelayed(() -> switchView.setSummary(dedupSummary()), 300);
+            });
+            zRAM.addItem(dedup);
         }
 
         if (zRAM.size() > 0) {

@@ -1267,4 +1267,18 @@
     <string name="dx_more">mais…</string>
     <string name="dx_all_tunables">Todos os ajustes do governador</string>
     <string name="dx_all_tunables_sub">opções avançadas</string>
+    <!-- Kernel Dr.xok v18 -->
+    <string name="dx_thermal_profile">Perfil térmico</string>
+    <string name="dx_thermal_cool">Fresco</string>
+    <string name="dx_thermal_normal">Normal</string>
+    <string name="dx_thermal_game">Jogo</string>
+    <string name="dx_thermal_cool_summary">Reduz a frequência 10 °C mais cedo: o celular esquenta menos e a bateria sofre menos.</string>
+    <string name="dx_thermal_normal_summary">Limites originais da Qualcomm.</string>
+    <string name="dx_thermal_game_summary">CPU e GPU seguram a frequência alta 5 °C a mais antes de reduzir. Os limites por núcleo e o desligamento continuam iguais.</string>
+    <string name="dx_dedup">Dedup da ZRAM</string>
+    <string name="dx_dedup_summary">Páginas comprimidas iguais são guardadas uma vez só.</string>
+    <string name="dx_dedup_saved">%1$d páginas repetidas · %2$.1f MB economizados</string>
+    <string name="dx_sched_title">Agendador</string>
+    <string name="dx_fast_migrate">Núcleos fortes mais cedo</string>
+    <string name="dx_fast_migrate_summary" formatted="false">O app em tela passa para os núcleos de 2 GHz mais cedo (com 80% de um núcleo pequeno em vez de 95%). Interface mais lisa, um pouco mais de bateria com a tela ligada.</string>
 </resources>

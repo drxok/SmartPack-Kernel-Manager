@@ -24,6 +24,7 @@ import android.text.InputType;
 import android.util.SparseArray;
 
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxKernel;
 import com.smartpack.kernelmanager.activities.CPUBoostActivity;
 import com.smartpack.kernelmanager.fragments.ApplyOnBootFragment;
 import com.smartpack.kernelmanager.fragments.DescriptionFragment;
@@ -109,6 +110,18 @@ public class CPUFragment extends RecyclerViewFragment {
     @Override
     protected void addItems(List<RecyclerViewItem> items) {
         cpuInit(items);
+        if (DxKernel.hasFastMigrate()) {
+            CardView sched = new CardView(getActivity());
+            sched.setTitle(getString(R.string.dx_sched_title));
+            SwitchView fast = new SwitchView();
+            fast.setTitle(getString(R.string.dx_fast_migrate));
+            fast.setSummary(getString(R.string.dx_fast_migrate_summary));
+            fast.setChecked(DxKernel.isFastMigrate());
+            fast.addOnSwitchListener((switchView, isChecked) ->
+                    DxKernel.setFastMigrate(isChecked, getActivity()));
+            sched.addItem(fast);
+            items.add(sched);
+        }
         if (Misc.hasMcPowerSaving()) {
             mcPowerSavingInit(items);
         }

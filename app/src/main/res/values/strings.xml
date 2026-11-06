@@ -1266,4 +1266,18 @@
     <string name="dx_more">more…</string>
     <string name="dx_all_tunables">All governor settings</string>
     <string name="dx_all_tunables_sub">advanced options</string>
+    <!-- Kernel Dr.xok v18 -->
+    <string name="dx_thermal_profile">Thermal profile</string>
+    <string name="dx_thermal_cool">Cool</string>
+    <string name="dx_thermal_normal">Normal</string>
+    <string name="dx_thermal_game">Game</string>
+    <string name="dx_thermal_cool_summary">Slows down 10 °C earlier: the phone runs cooler and the battery heats less.</string>
+    <string name="dx_thermal_normal_summary">Original Qualcomm limits.</string>
+    <string name="dx_thermal_game_summary">CPU and GPU hold high clocks 5 °C longer before throttling. Per-core limits and shutdown stay the same.</string>
+    <string name="dx_dedup">ZRAM dedup</string>
+    <string name="dx_dedup_summary">Identical compressed pages are stored only once.</string>
+    <string name="dx_dedup_saved">%1$d repeated pages · %2$.1f MB saved</string>
+    <string name="dx_sched_title">Scheduler</string>
+    <string name="dx_fast_migrate">Big cores sooner</string>
+    <string name="dx_fast_migrate_summary" formatted="false">The app on screen moves to the 2 GHz cores earlier (at 80% instead of 95% of a small core). Smoother UI, slightly more battery with the screen on.</string>
 </resources>

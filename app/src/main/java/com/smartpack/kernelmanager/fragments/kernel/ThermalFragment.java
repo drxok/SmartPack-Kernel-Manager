@@ -22,6 +22,8 @@ package com.smartpack.kernelmanager.fragments.kernel;
 import android.text.InputType;
 
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxKernel;
+import com.smartpack.kernelmanager.views.recyclerview.DxChipsView;
 import com.smartpack.kernelmanager.fragments.ApplyOnBootFragment;
 import com.smartpack.kernelmanager.fragments.DescriptionFragment;
 import com.smartpack.kernelmanager.fragments.RecyclerViewFragment;
@@ -62,6 +64,9 @@ public class ThermalFragment extends RecyclerViewFragment {
 
     @Override
     protected void addItems(List<RecyclerViewItem> items) {
+        if (DxKernel.hasThermalProfile()) {
+            dxThermalProfileInit(items);
+        }
         if (Thermald.supported()) {
             thermaldInit(items);
         }
@@ -71,6 +76,28 @@ public class ThermalFragment extends RecyclerViewFragment {
         if (MSMThermalSimple.supported()) {
             simpleMSMThermalInit(items);
         }
+    }
+
+    /** Kernel Dr.xok: perfil térmico fresco / normal / jogo */
+    private void dxThermalProfileInit(List<RecyclerViewItem> items) {
+        String[] names = {getString(R.string.dx_thermal_cool), getString(R.string.dx_thermal_normal),
+                getString(R.string.dx_thermal_game)};
+        String[] summaries = {getString(R.string.dx_thermal_cool_summary),
+                getString(R.string.dx_thermal_normal_summary), getString(R.string.dx_thermal_game_summary)};
+        int cur = Math.max(0, Math.min(2, DxKernel.getThermalProfile()));
+
+        DxChipsView profile = new DxChipsView();
+        profile.setStandalone(true);
+        profile.setTitle(getString(R.string.dx_thermal_profile));
+        profile.setSummary(summaries[cur]);
+        profile.setAccent(R.color.dx_butter, R.color.dx_butter_ink);
+        profile.setItems(java.util.Arrays.asList(names));
+        profile.setItem(cur);
+        profile.setOnItemSelected((view, position, item) -> {
+            DxKernel.setThermalProfile(position, getActivity());
+            view.setSummary(summaries[position]);
+        });
+        items.add(profile);
     }
 
     private void thermaldInit(List<RecyclerViewItem> items) {
