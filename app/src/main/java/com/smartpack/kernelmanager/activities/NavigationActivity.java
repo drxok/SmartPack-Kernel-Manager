@@ -601,7 +601,12 @@ public class NavigationActivity extends BaseActivity
         // posição inicial; nas trocas seguintes quem move a pílula é o listener de layout
         if (!mDxIndicatorPlaced || indicator.getVisibility() != View.VISIBLE) {
             tab.post(() -> {
-                if (tab == mDxActiveTab) syncDxIndicator(tab.getLeft(), tab.getWidth());
+                // se o listener de layout já posicionou, não sobrescreve: durante a
+                // transição getWidth() ainda é a largura antiga (só o ícone)
+                View ind = findViewById(R.id.dx_nav_indicator);
+                if (tab == mDxActiveTab && ind != null && ind.getVisibility() != View.VISIBLE) {
+                    syncDxIndicator(tab.getLeft(), tab.getWidth());
+                }
             });
         }
     }
