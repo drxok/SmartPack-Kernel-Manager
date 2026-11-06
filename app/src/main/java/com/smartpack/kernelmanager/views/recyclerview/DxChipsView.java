@@ -11,6 +11,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textview.MaterialTextView;
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxMotion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,7 +157,7 @@ public class DxChipsView extends RecyclerViewItem {
         mBinding = true;
         List<String> visible = visibleItems();
         boolean more = hasMore();
-        String sig = visible + "|" + mSelected + "|" + more + "|" + mLabels;
+        String sig = signature();
         if (sig.equals(mChips.getTag())) {
             mBinding = false;
             return;
@@ -167,7 +168,9 @@ public class DxChipsView extends RecyclerViewItem {
             Chip chip = makeChip(context, visible.get(i));
             String label = mLabels.get(visible.get(i));
             chip.setText(label != null ? label : visible.get(i));
-            chip.setChecked(visible.get(i).equals(mSelected));
+            boolean on = visible.get(i).equals(mSelected);
+            chip.setChecked(on);
+            chip.setChipCornerRadius(on ? squareRadius(context) : pillRadius(context));
             mChips.addView(chip);
         }
         if (more) {
@@ -181,6 +184,7 @@ public class DxChipsView extends RecyclerViewItem {
 
     private Chip makeChip(Context context, final String item) {
         Chip chip = new Chip(context);
+        chip.setTag(item);
         chip.setCheckable(true);
         chip.setCheckedIconVisible(false);
         chip.setEnsureMinTouchTargetSize(true);
@@ -209,12 +213,100 @@ public class DxChipsView extends RecyclerViewItem {
                 refresh();
                 return;
             }
+            String before = signature();
+            String previous = mSelected;
             mSelected = item;
-            refresh();
+            if (!animateSelection(before, previous)) refresh();
             if (mOnItemSelected != null) {
                 mOnItemSelected.onItemSelected(this, mItems.indexOf(item), item);
             }
         });
         return chip;
+    }
+
+    private String signature() {
+        return visibleItems() + "|" + mSelected + "|" + hasMore() + "|" + mLabels;
+    }
+
+    private static float pillRadius(Context c) {
+        return 20 * c.getResources().getDisplayMetrics().density;
+    }
+
+    private static float squareRadius(Context c) {
+        return 12 * c.getResources().getDisplayMetrics().density;
+    }
+
+    /**
+     * Kernel Dr.xok: a pílula escolhida muda de cor e de forma (pílula → quadrado arredondado)
+     * com mola, sem recriar a lista. Retorna false se for preciso reconstruir.
+     */
+    private boolean animateSelection(String before, String previous) {
+        if (mChips == null || !before.equals(mChips.getTag())) return false;
+        String after = signature();
+        // a lista visível mudou (ex.: item extra some): reconstrói
+        String beforeList = before.substring(0, before.indexOf('|'));
+        String afterList = after.substring(0, after.indexOf('|'));
+        if (!beforeList.equals(afterList)) return false;
+        mChips.setTag(after);
+        mBinding = true;
+        for (int i = 0; i < mChips.getChildCount(); i++) {
+            View child = mChips.getChildAt(i);
+            if (!(child instanceof Chip) || child.getTag() == null) continue;
+            Chip chip = (Chip) child;
+            boolean on = child.getTag().equals(mSelected);
+            boolean wasOn = child.getTag().equals(previous);
+            // o Chip já alterna sozinho ao ser tocado; a gente manda no estado
+            if (wasOn != on) morph(chip, on);
+            else chip.setChecked(on);
+        }
+        mBinding = false;
+        return true;
+    }
+
+    private void morph(Chip chip, boolean on) {
+        Context c = chip.getContext();
+        ColorStateList bgList = chip.getChipBackgroundColor();
+        ColorStateList textList = chip.getTextColors();
+        int accent = ContextCompat.getColor(c, mAccentRes);
+        int ink = ContextCompat.getColor(c, mAccentInkRes);
+        int text = ContextCompat.getColor(c, R.color.dx_text);
+        int bgFrom = on ? 0x00FFFFFF & accent : accent, bgTo = on ? accent : 0x00FFFFFF & accent;
+        int fgFrom = on ? text : ink, fgTo = on ? ink : text;
+        float rFrom = on ? pillRadius(c) : squareRadius(c), rTo = on ? squareRadius(c) : pillRadius(c);
+        chip.setChecked(on);
+
+        android.animation.ArgbEvaluator argb = new android.animation.ArgbEvaluator();
+        android.animation.ValueAnimator va = android.animation.ValueAnimator.ofFloat(0f, 1f);
+        va.setDuration(280);
+        va.setInterpolator(new android.view.animation.PathInterpolator(0.05f, 0.7f, 0.1f, 1f));
+        va.addUpdateListener(a -> {
+            float f = (float) a.getAnimatedValue();
+            chip.setChipBackgroundColor(ColorStateList.valueOf((int) argb.evaluate(f, bgFrom, bgTo)));
+            chip.setTextColor((int) argb.evaluate(f, fgFrom, fgTo));
+        });
+        va.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                chip.setChipBackgroundColor(bgList);
+                chip.setTextColor(textList);
+            }
+        });
+        va.start();
+
+        // forma: mola entre pílula e quadrado arredondado
+        androidx.dynamicanimation.animation.FloatValueHolder holder =
+                new androidx.dynamicanimation.animation.FloatValueHolder(rFrom);
+        androidx.dynamicanimation.animation.SpringAnimation shape =
+                new androidx.dynamicanimation.animation.SpringAnimation(holder);
+        shape.setSpring(new androidx.dynamicanimation.animation.SpringForce(rTo)
+                .setDampingRatio(0.55f).setStiffness(500f));
+        shape.addUpdateListener((a, value, velocity) -> chip.setChipCornerRadius(Math.max(0f, value)));
+        shape.start();
+
+        if (on) {
+            chip.setScaleX(0.9f);
+            chip.setScaleY(0.9f);
+            DxMotion.scale(chip, 1f, DxMotion.BOUNCY, 500f);
+        }
     }
 }

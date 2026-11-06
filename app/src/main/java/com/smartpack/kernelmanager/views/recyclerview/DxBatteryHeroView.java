@@ -5,6 +5,7 @@ import android.view.View;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxMotion;
 
 /**
  * Kernel Dr.xok: cartão verde com o anel de saúde da bateria.
@@ -52,8 +53,8 @@ public class DxBatteryHeroView extends RecyclerViewItem {
     protected void refresh() {
         super.refresh();
         if (mRing == null) return;
-        mRing.setProgress(mPercent);
-        mPercentView.setText(mPercent + "%");
+        mRing.setProgressCompat(mPercent, true);
+        DxMotion.count(mPercentView, mPercent, "%");
         mPercentLabelView.setText(mPercentLabel);
         mTitleView.setText(mTitle);
         mDetailsView.setText(mDetails);

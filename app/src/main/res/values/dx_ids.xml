@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="dx_spring_scale_x" type="id" />
+    <item name="dx_spring_scale_y" type="id" />
+    <item name="dx_spring_tx" type="id" />
+    <item name="dx_spring_ty" type="id" />
+    <item name="dx_spring_alpha" type="id" />
+    <item name="dx_spring_height" type="id" />
+    <item name="dx_count_value" type="id" />
+    <item name="dx_count_anim" type="id" />
+</resources>

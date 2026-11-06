@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<alpha xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="140"
-    android:fromAlpha="0"
-    android:interpolator="@android:interpolator/decelerate_quad"
-    android:toAlpha="1" />
+<!-- Kernel Dr.xok: entrada de tela no estilo Expressive (sobe um pouco e cresce) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="260"
+    android:interpolator="@interpolator/dx_emphasized"
+    android:shareInterpolator="true">
+    <alpha android:fromAlpha="0" android:toAlpha="1" />
+    <translate android:fromYDelta="3%" android:toYDelta="0" />
+    <scale
+        android:fromXScale="0.97"
+        android:fromYScale="0.97"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toXScale="1"
+        android:toYScale="1" />
+</set>

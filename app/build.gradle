@@ -22,8 +22,8 @@ android {
         applicationId "com.smartpack.kernelmanager"
         minSdk 21
         targetSdk 34
-        versionCode 186
-        versionName "v18.6-drxok"
+        versionCode 187
+        versionName "v18.7-drxok"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         testFunctionalTest = false
@@ -92,6 +92,7 @@ dependencies {
     implementation 'com.google.android.apps.dashclock:dashclock-api:2.0.0'
 
     implementation "com.google.android.material:material:${materialLibVersion}"
+    implementation "androidx.dynamicanimation:dynamicanimation:1.0.0"
 
     implementation 'org.cyanogenmod:platform.sdk:6.0'
 }

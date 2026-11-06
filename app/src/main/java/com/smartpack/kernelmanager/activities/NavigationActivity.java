@@ -20,6 +20,16 @@
 package com.smartpack.kernelmanager.activities;
 
 import android.content.res.ColorStateList;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.PathInterpolator;
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.FloatValueHolder;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
+import com.smartpack.kernelmanager.utils.DxMotion;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.textview.MaterialTextView;
@@ -565,6 +575,57 @@ public class NavigationActivity extends BaseActivity
             tab.setContentDescription(getString(DX_TAB_LABELS[i]));
             tab.setVisibility(mActualFragments.containsValue(cls) ? View.VISIBLE : View.GONE);
             tab.setOnClickListener(v -> openSection(cls));
+            DxMotion.press(tab);
+        }
+    }
+
+    private boolean mDxIndicatorPlaced;
+    private SpringAnimation mDxIndicatorX, mDxIndicatorW;
+
+    /** move a pílula lilás até a aba ativa: desliza e estica com mola */
+    private void moveDxIndicator(View tab) {
+        View indicator = findViewById(R.id.dx_nav_indicator);
+        ViewGroup tabs = findViewById(R.id.dx_nav_tabs);
+        if (indicator == null || tabs == null) return;
+        if (tab == null) {
+            indicator.setVisibility(View.INVISIBLE);
+            return;
+        }
+        tabs.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                tabs.getViewTreeObserver().removeOnPreDrawListener(this);
+                float x = tab.getLeft();
+                float w = tab.getWidth();
+                if (w <= 0) return true;
+                if (!mDxIndicatorPlaced || indicator.getVisibility() != View.VISIBLE) {
+                    mDxIndicatorPlaced = true;
+                    indicator.setTranslationX(x);
+                    setDxIndicatorWidth(indicator, w);
+                    indicator.setVisibility(View.VISIBLE);
+                    return true;
+                }
+                if (mDxIndicatorX == null) {
+                    mDxIndicatorX = new SpringAnimation(indicator, DynamicAnimation.TRANSLATION_X);
+                    mDxIndicatorX.setSpring(new SpringForce().setDampingRatio(0.62f).setStiffness(420f));
+                    FloatValueHolder holder = new FloatValueHolder(indicator.getWidth());
+                    mDxIndicatorW = new SpringAnimation(holder);
+                    mDxIndicatorW.setSpring(new SpringForce().setDampingRatio(0.7f).setStiffness(420f));
+                    mDxIndicatorW.addUpdateListener((a, value, velocity) -> setDxIndicatorWidth(indicator, value));
+                }
+                mDxIndicatorX.animateToFinalPosition(x);
+                mDxIndicatorW.animateToFinalPosition(w);
+                return true;
+            }
+        });
+    }
+
+    private static void setDxIndicatorWidth(View indicator, float w) {
+        ViewGroup.LayoutParams lp = indicator.getLayoutParams();
+        int iw = Math.max(1, Math.round(w));
+        if (lp.width != iw) {
+            lp.width = iw;
+            indicator.setLayoutParams(lp);
         }
     }
 
@@ -578,17 +639,27 @@ public class NavigationActivity extends BaseActivity
         }
         int active = ContextCompat.getColor(this, R.color.dx_ink);
         int idle = ContextCompat.getColor(this, R.color.dx_text_muted);
+        ViewGroup tabs = findViewById(R.id.dx_nav_tabs);
+        if (tabs != null && mDxIndicatorPlaced) {
+            // o rótulo aparece e as abas se reorganizam suavemente
+            AutoTransition t = new AutoTransition();
+            t.setDuration(300);
+            t.setInterpolator(new PathInterpolator(0.05f, 0.7f, 0.1f, 1f));
+            TransitionManager.beginDelayedTransition(tabs, t);
+        }
+        View activeTab = null;
         for (int i = 0; i < DX_TABS.length; i++) {
             View tab = findViewById(DX_TAB_IDS[i]);
             if (tab == null) continue;
             boolean on = DX_TABS[i] == current;
             AppCompatImageView icon = tab.findViewById(R.id.dx_tab_icon);
             MaterialTextView label = tab.findViewById(R.id.dx_tab_label);
-            tab.setBackgroundResource(on ? R.drawable.dx_nav_active : 0);
+            if (on) activeTab = tab;
             icon.setImageTintList(ColorStateList.valueOf(on ? active : idle));
             label.setVisibility(on ? View.VISIBLE : View.GONE);
             tab.setSelected(on);
         }
+        moveDxIndicator(activeTab);
     }
 
     public static class NavigationFragment implements Parcelable {

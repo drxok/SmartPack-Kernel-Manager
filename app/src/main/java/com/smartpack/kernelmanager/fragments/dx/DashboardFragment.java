@@ -19,6 +19,11 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import androidx.fragment.app.Fragment;
+import com.smartpack.kernelmanager.fragments.kernel.BatteryFragment;
+import com.smartpack.kernelmanager.fragments.kernel.GPUFragment;
+import com.smartpack.kernelmanager.fragments.kernel.CPUFragment;
+import com.smartpack.kernelmanager.utils.DxMotion;
 import com.google.android.material.textview.MaterialTextView;
 import com.smartpack.kernelmanager.R;
 import com.smartpack.kernelmanager.activities.NavigationActivity;
@@ -103,12 +108,33 @@ public class DashboardFragment extends BaseFragment {
 
         mGreeting.setText(getString(R.string.dx_hello, deviceName(requireContext())));
 
+        // toque nos cartões: afunda com mola e abre a seção
+        tap(root, R.id.tile_big, CPUFragment.class);
+        tap(root, R.id.tile_little, CPUFragment.class);
+        tap(root, R.id.tile_temp, BatteryFragment.class);
+        tap(root, R.id.tile_gpu, GPUFragment.class);
+        DxMotion.press(root.findViewById(R.id.settings));
+        if (savedInstanceState == null) {
+            DxMotion.stagger((ViewGroup) ((ViewGroup) root).getChildAt(0));
+        }
+
         root.findViewById(R.id.settings).setOnClickListener(v -> {
             if (getActivity() instanceof NavigationActivity) {
                 ((NavigationActivity) getActivity()).openSection(SettingsFragment.class);
             }
         });
         return root;
+    }
+
+    private void tap(View root, int id, Class<? extends Fragment> section) {
+        View v = root.findViewById(id);
+        if (v == null) return;
+        DxMotion.press(v);
+        v.setOnClickListener(x -> {
+            if (getActivity() instanceof NavigationActivity) {
+                ((NavigationActivity) getActivity()).openSection(section);
+            }
+        });
     }
 
     private Tile tile(View root, int id, int bgRes, int inkRes, boolean bar) {
@@ -337,36 +363,36 @@ public class DashboardFragment extends BaseFragment {
             if (hz > 0) addChip(Math.round(hz) + " Hz", false);
         }
 
-        mTileBig.value.setText(s.bigCur > 0 ? String.valueOf(s.bigCur) : "—");
+        DxMotion.countOrDash(mTileBig.value, s.bigCur, "");
         mTileBig.sub.setText(getString(R.string.dx_mhz_gov, s.bigGov == null ? "" : prettyGov(s.bigGov)));
-        mTileBig.bar.setProgress(s.bigMax > 0 ? s.bigCur * 100 / s.bigMax : 0);
+        mTileBig.bar.setProgressCompat(s.bigMax > 0 ? s.bigCur * 100 / s.bigMax : 0, true);
 
         if (s.hasLittle) {
-            mTileLittle.value.setText(s.littleCur > 0 ? String.valueOf(s.littleCur) : "—");
+            DxMotion.countOrDash(mTileLittle.value, s.littleCur, "");
             mTileLittle.sub.setText(getString(R.string.dx_mhz_gov, s.littleGov == null ? "" : prettyGov(s.littleGov)));
-            mTileLittle.bar.setProgress(s.littleMax > 0 ? s.littleCur * 100 / s.littleMax : 0);
+            mTileLittle.bar.setProgressCompat(s.littleMax > 0 ? s.littleCur * 100 / s.littleMax : 0, true);
         } else {
             mTileLittle.value.setText("—");
             mTileLittle.sub.setText("");
         }
 
-        mTileTemp.value.setText(Float.isNaN(s.tempC) ? "—" : String.format(PT, "%.0f°C", s.tempC));
+        DxMotion.countOrDash(mTileTemp.value, Float.isNaN(s.tempC) ? 0 : Math.round(s.tempC), "°C");
 
-        mTileGpu.value.setText(s.gpuCur > 0 ? String.valueOf(s.gpuCur) : "—");
+        DxMotion.countOrDash(mTileGpu.value, s.gpuCur, "");
         mTileGpu.sub.setText(s.gpuMaxMhz > 0 ? getString(R.string.dx_mhz_max, s.gpuMaxMhz) : "MHz");
 
         if (s.memTotal > 0) {
             long used = s.memTotal - s.memAvail;
             mRamText.setText(getString(R.string.dx_of, gb(used), gb(s.memTotal)));
-            mRamBar.setProgress((int) (used * 100 / s.memTotal));
+            mRamBar.setProgressCompat((int) (used * 100 / s.memTotal), true);
         }
         if (s.swapTotal > 0) {
             long used = s.swapTotal - s.swapFree;
             mZramText.setText(getString(R.string.dx_of, size(used), gb(s.swapTotal)));
-            mZramBar.setProgress((int) (used * 100 / s.swapTotal));
+            mZramBar.setProgressCompat((int) (used * 100 / s.swapTotal), true);
         } else {
             mZramText.setText(R.string.dx_off);
-            mZramBar.setProgress(0);
+            mZramBar.setProgressCompat(0, true);
         }
     }
 

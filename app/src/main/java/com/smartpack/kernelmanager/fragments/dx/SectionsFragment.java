@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxMotion;
 import com.smartpack.kernelmanager.activities.NavigationActivity;
 import com.smartpack.kernelmanager.fragments.BaseFragment;
 import com.smartpack.kernelmanager.fragments.kernel.BatteryFragment;
@@ -106,6 +107,10 @@ public class SectionsFragment extends BaseFragment {
 
         build();
         loadSubtitles();
+        if (savedInstanceState == null) {
+            DxMotion.stagger(mFeatured);
+            DxMotion.stagger(mList);
+        }
 
         EditText search = root.findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
@@ -220,6 +225,7 @@ public class SectionsFragment extends BaseFragment {
         if (android.os.Build.VERSION.SDK_INT >= 23) card.setForeground(ContextCompat.getDrawable(c, selectable(c)));
         card.setContentDescription(getString(nf.mId));
         card.setOnClickListener(v -> nav().openSection(nf.mFragmentClass));
+        DxMotion.press(card);
 
         AppCompatImageView icon = new AppCompatImageView(c);
         icon.setImageResource(colors[3]);
@@ -276,6 +282,7 @@ public class SectionsFragment extends BaseFragment {
         row.setFocusable(true);
         if (android.os.Build.VERSION.SDK_INT >= 23) row.setForeground(ContextCompat.getDrawable(c, selectable(c)));
         row.setOnClickListener(v -> nav().openSection(nf.mFragmentClass));
+        DxMotion.press(row);
         LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         rp.bottomMargin = dp(8);

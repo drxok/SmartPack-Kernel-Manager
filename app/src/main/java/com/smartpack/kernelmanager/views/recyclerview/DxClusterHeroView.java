@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textview.MaterialTextView;
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.DxMotion;
 
 import java.util.ArrayDeque;
 
@@ -92,7 +93,7 @@ public class DxClusterHeroView extends RecyclerViewItem {
         mBadgeView.setVisibility(mBadge == null ? View.GONE : View.VISIBLE);
         mBadgeView.setBackgroundTintList(ColorStateList.valueOf(ink));
         mBadgeView.setTextColor(bg);
-        mValueView.setText(mCur > 0 ? String.valueOf(mCur / 1000) : "—");
+        DxMotion.countOrDash(mValueView, mCur / 1000, "");
         mUnitView.setText(mUnit);
         mMinView.setText(mMin);
         mMaxView.setText(mMax);
@@ -114,9 +115,7 @@ public class DxClusterHeroView extends RecyclerViewItem {
             int idx = hist.length - BARS + i;
             int v = idx >= 0 ? hist[idx] : 0;
             float frac = mHwMax > 0 ? Math.min(1f, (float) v / mHwMax) : 0f;
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) bar.getLayoutParams();
-            lp.height = Math.max((int) (10 * density), (int) (full * frac));
-            bar.setLayoutParams(lp);
+            DxMotion.height(bar, Math.max((int) (10 * density), (int) (full * frac)));
             GradientDrawable d = new GradientDrawable();
             d.setCornerRadius(6 * density);
             boolean newest = i == BARS - 1;

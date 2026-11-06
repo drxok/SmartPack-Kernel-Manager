@@ -25,7 +25,7 @@
             android:layout_height="wrap_content" />
 
         <!-- Kernel Dr.xok: barra de navegação flutuante -->
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/dx_nav"
             android:layout_width="match_parent"
             android:layout_height="68dp"
@@ -35,19 +35,34 @@
             android:layout_marginBottom="18dp"
             android:background="@drawable/dx_nav_bg"
             android:elevation="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
             android:paddingStart="9dp"
             android:paddingEnd="9dp">
 
-            <include android:id="@+id/dx_tab_dashboard" layout="@layout/dx_nav_tab" />
-            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-            <include android:id="@+id/dx_tab_sections" layout="@layout/dx_nav_tab" />
-            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-            <include android:id="@+id/dx_tab_cpu" layout="@layout/dx_nav_tab" />
-            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-            <include android:id="@+id/dx_tab_battery" layout="@layout/dx_nav_tab" />
-        </LinearLayout>
+            <!-- pílula lilás que desliza com mola até a aba ativa -->
+            <View
+                android:id="@+id/dx_nav_indicator"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical|start"
+                android:background="@drawable/dx_nav_active"
+                android:visibility="invisible" />
+
+            <LinearLayout
+                android:id="@+id/dx_nav_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <include android:id="@+id/dx_tab_dashboard" layout="@layout/dx_nav_tab" />
+                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <include android:id="@+id/dx_tab_sections" layout="@layout/dx_nav_tab" />
+                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <include android:id="@+id/dx_tab_cpu" layout="@layout/dx_nav_tab" />
+                <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <include android:id="@+id/dx_tab_battery" layout="@layout/dx_nav_tab" />
+            </LinearLayout>
+        </FrameLayout>
     </FrameLayout>
 
     <com.google.android.material.navigation.NavigationView
