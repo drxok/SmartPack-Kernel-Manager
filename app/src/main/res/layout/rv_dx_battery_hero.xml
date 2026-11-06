@@ -22,11 +22,14 @@
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/ring"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:max="100"
                 app:indicatorColor="@color/dx_mint_ink"
-                app:indicatorSize="110dp"
+                app:indicatorInset="0dp"
+                app:indicatorTrackGapSize="0dp"
+                app:indicatorSize="104dp"
                 app:trackColor="#260F3320"
                 app:trackCornerRadius="8dp"
                 app:trackThickness="12dp" />

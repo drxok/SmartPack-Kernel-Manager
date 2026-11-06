@@ -117,55 +117,38 @@ public class XYGraph extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        // Kernel Dr.xok: barras arredondadas (as mais recentes à direita), sem grade
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
         boolean isRTL = Utils.isRTL(this);
 
-        for (int i = 1; i < 10; i++) {
-            float y = ((float) height / 10) * i;
-            canvas.drawLine(0, y, width, y, mPaintLine);
-        }
+        final int slots = 24;
+        float slot = (float) width / slots;
+        float gap = Math.max(2f, slot * 0.22f);
+        float radius = Math.min(slot - gap, 10f * getResources().getDisplayMetrics().density) / 2f;
+        float minBar = 3f * getResources().getDisplayMetrics().density;
 
-        for (int i = 0; i < 7; i++) {
-            float x = ((float) width / 6) * i;
-            float offset = (float) width / 6 / 4 * state;
-            if (isRTL) {
-                x += offset;
-            } else {
-                x -= offset;
-            }
-            canvas.drawLine(x, 0, x, height, mPaintLine);
+        if (mBarPaint == null) {
+            mBarPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mBarPaint.setStyle(Paint.Style.FILL);
         }
-
-        mPathGraph.reset();
-        float graphX;
-        if (isRTL) {
-            graphX = ((float) width / 24) * (mPercentages.size() - 1);
-        } else {
-            graphX = width - ((float) width / 24) * (mPercentages.size() - 1);
-        }
-        mPathGraph.moveTo(graphX, height);
-        float x = 0;
-        float y;
-        for (int i = 0; i < mPercentages.size(); i++) {
-            if (isRTL) {
-                x = graphX - ((float) width / 24) * i;
-            } else {
-                x = graphX + ((float) width / 24) * i;
-            }
-            y = ((float) (100 - mPercentages.get(i)) / 100) * height;
-            mPathGraph.lineTo(x, y);
-        }
-        mPathGraph.lineTo(x, height);
-        mPathGraph.close();
-
-        canvas.drawPath(mPathGraph, mPaintGraph);
-        canvas.drawPath(mPathGraph, mPaintGraphStroke);
-
-        if (mEdgeVisible) {
-            canvas.drawRect(0, 0, width, height, mPaintEdge);
+        int base = mPaintGraphStroke.getColor();
+        int n = mPercentages.size();
+        for (int i = 0; i < n && i < slots; i++) {
+            int idx = n - 1 - i;              // i = 0 é a amostra mais nova
+            float pct = Math.max(0, Math.min(100, mPercentages.get(idx)));
+            float h = Math.max(minBar, pct / 100f * height);
+            int col = slots - 1 - i;
+            float left = isRTL ? (slots - 1 - col) * slot : col * slot;
+            float right = left + slot - gap;
+            boolean newest = i == 0;
+            int alpha = newest ? 255 : 70 + (int) (120f * (slots - i) / slots);
+            mBarPaint.setColor(Color.argb(alpha, Color.red(base), Color.green(base), Color.blue(base)));
+            canvas.drawRoundRect(left, height - h, right, height, radius, radius, mBarPaint);
         }
     }
+
+    private Paint mBarPaint;
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {

@@ -1,35 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Kernel Dr.xok: uso em barras, com o valor em destaque -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="10dp">
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
-
-        <com.smartpack.kernelmanager.views.XYGraph
-            android:id="@+id/graph"
-            android:layout_width="match_parent"
-            android:layout_height="100dp" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:textSize="15sp" />
-    </FrameLayout>
+    android:orientation="vertical"
+    android:paddingStart="8dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="10dp">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center" />
+        android:textColor="@color/dx_text_muted"
+        android:textSize="13sp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/sora_extrabold"
+        android:textColor="@color/dx_text"
+        android:textSize="28sp" />
+
+    <com.smartpack.kernelmanager.views.XYGraph
+        android:id="@+id/graph"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="10dp" />
 </LinearLayout>

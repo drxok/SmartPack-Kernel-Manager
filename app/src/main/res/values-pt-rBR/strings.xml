@@ -1243,4 +1243,9 @@
     <string name="dx_t_iowait_d">Sobe a frequência enquanto os apps esperam o armazenamento (1 = ligado).</string>
     <string name="dx_t_pl">Carga prevista</string>
     <string name="dx_t_pl_d">Usa uma previsão da carga para reagir mais rápido (1 = ligado).</string>
+    <string name="dx_apply_on_boot_hint">Reaplica estes ajustes a cada boot</string>
+    <string name="dx_cluster_big_t">Núcleos grandes</string>
+    <string name="dx_cluster_little_t">Núcleos pequenos</string>
+    <string name="dx_cluster_mid_t">Núcleos médios</string>
+    <string name="dx_usage_now">Uso agora</string>
 </resources>

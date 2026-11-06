@@ -1242,4 +1242,9 @@
     <string name="dx_t_iowait_d">Raises the frequency while apps wait for storage (1 = on).</string>
     <string name="dx_t_pl">Predicted load</string>
     <string name="dx_t_pl_d">Uses a load prediction to react faster (1 = on).</string>
+    <string name="dx_apply_on_boot_hint">Reapply these settings at every boot</string>
+    <string name="dx_cluster_big_t">Big cores</string>
+    <string name="dx_cluster_little_t">Little cores</string>
+    <string name="dx_cluster_mid_t">Middle cores</string>
+    <string name="dx_usage_now">Usage now</string>
 </resources>

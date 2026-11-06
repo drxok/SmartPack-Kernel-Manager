@@ -134,7 +134,7 @@ public class CPUFragment extends RecyclerViewFragment {
 
         mCPUUsageBig = new XYGraphView();
         if (mCPUFreq.isBigLITTLE()) {
-            mCPUUsageBig.setTitle(getString(R.string.cpu_usage_string, getString(R.string.cluster_big)));
+            mCPUUsageBig.setTitle(getString(R.string.dx_usage_now));
         } else {
             mCPUUsageBig.setTitle(getString(R.string.cpu_usage));
         }
@@ -179,7 +179,7 @@ public class CPUFragment extends RecyclerViewFragment {
         }
 
         if (mCPUFreq.isBigLITTLE()) {
-            cpuCard.setTitle(getString(R.string.cluster_big));
+            cpuCard.setTitle(getString(R.string.dx_cluster_big_t));
         }
 
         mCPUGovernorBig = new DxChipsView();
@@ -202,10 +202,10 @@ public class CPUFragment extends RecyclerViewFragment {
         if (mCPUFreq.isBigLITTLE()) {
             if (mCPUFreq.hasMidCpu()) {
                 CardView cpuMidCard = new CardView(getActivity());
-                cpuMidCard.setTitle(getString(R.string.cluster_middle));
+                cpuMidCard.setTitle(getString(R.string.dx_cluster_mid_t));
 
                 mCPUUsageMid = new XYGraphView();
-                mCPUUsageMid.setTitle(getString(R.string.cpu_usage_string, getString(R.string.cluster_middle)));
+                mCPUUsageMid.setTitle(getString(R.string.dx_usage_now));
 
                 mCPUUsageLITTLE = new XYGraphView();
                 mCPUUsageLITTLE.setTitle(getString(R.string.cpu_usage_string, getString(R.string.cluster_middle)));
@@ -273,10 +273,10 @@ public class CPUFragment extends RecyclerViewFragment {
             }
 
             CardView cpuLITTLECard = new CardView(getActivity());
-            cpuLITTLECard.setTitle(getString(R.string.cluster_little));
+            cpuLITTLECard.setTitle(getString(R.string.dx_cluster_little_t));
 
             mCPUUsageLITTLE = new XYGraphView();
-            mCPUUsageLITTLE.setTitle(getString(R.string.cpu_usage_string, getString(R.string.cluster_little)));
+            mCPUUsageLITTLE.setTitle(getString(R.string.dx_usage_now));
 
             cpuLITTLECard.addItem(mCPUUsageLITTLE);
 
