@@ -576,48 +576,56 @@ public class NavigationActivity extends BaseActivity
             tab.setVisibility(mActualFragments.containsValue(cls) ? View.VISIBLE : View.GONE);
             tab.setOnClickListener(v -> openSection(cls));
             DxMotion.press(tab);
+            tab.addOnLayoutChangeListener((v, l, t, r, bt, ol, ot, or, ob) -> {
+                if (v == mDxActiveTab && (r - l != or - ol || l != ol)) syncDxIndicator();
+            });
         }
     }
 
     private boolean mDxIndicatorPlaced;
     private SpringAnimation mDxIndicatorX, mDxIndicatorW;
 
+    private View mDxActiveTab;
+
     /** move a pílula lilás até a aba ativa: desliza e estica com mola */
     private void moveDxIndicator(View tab) {
+        mDxActiveTab = tab;
         View indicator = findViewById(R.id.dx_nav_indicator);
-        ViewGroup tabs = findViewById(R.id.dx_nav_tabs);
-        if (indicator == null || tabs == null) return;
+        if (indicator == null) return;
         if (tab == null) {
             indicator.setVisibility(View.INVISIBLE);
             return;
         }
-        tabs.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                tabs.getViewTreeObserver().removeOnPreDrawListener(this);
-                float x = tab.getLeft();
-                float w = tab.getWidth();
-                if (w <= 0) return true;
-                if (!mDxIndicatorPlaced || indicator.getVisibility() != View.VISIBLE) {
-                    mDxIndicatorPlaced = true;
-                    indicator.setTranslationX(x);
-                    setDxIndicatorWidth(indicator, w);
-                    indicator.setVisibility(View.VISIBLE);
-                    return true;
-                }
-                if (mDxIndicatorX == null) {
-                    mDxIndicatorX = new SpringAnimation(indicator, DynamicAnimation.TRANSLATION_X);
-                    mDxIndicatorX.setSpring(new SpringForce().setDampingRatio(0.62f).setStiffness(420f));
-                    FloatValueHolder holder = new FloatValueHolder(indicator.getWidth());
-                    mDxIndicatorW = new SpringAnimation(holder);
-                    mDxIndicatorW.setSpring(new SpringForce().setDampingRatio(0.7f).setStiffness(420f));
-                    mDxIndicatorW.addUpdateListener((a, value, velocity) -> setDxIndicatorWidth(indicator, value));
-                }
-                mDxIndicatorX.animateToFinalPosition(x);
-                mDxIndicatorW.animateToFinalPosition(w);
-                return true;
-            }
-        });
+        // a aba ativa muda de largura quando o rótulo aparece; acompanha cada novo layout
+        tab.post(this::syncDxIndicator);
+    }
+
+    private void syncDxIndicator() {
+        View indicator = findViewById(R.id.dx_nav_indicator);
+        View tab = mDxActiveTab;
+        if (indicator == null || tab == null) return;
+        float x = tab.getLeft();
+        float w = tab.getWidth();
+        if (w <= 0) return;
+        if (!mDxIndicatorPlaced || indicator.getVisibility() != View.VISIBLE || !DxMotion.enabled()) {
+            mDxIndicatorPlaced = true;
+            if (mDxIndicatorX != null) mDxIndicatorX.cancel();
+            if (mDxIndicatorW != null) mDxIndicatorW.cancel();
+            indicator.setTranslationX(x);
+            setDxIndicatorWidth(indicator, w);
+            indicator.setVisibility(View.VISIBLE);
+            return;
+        }
+        if (mDxIndicatorX == null) {
+            mDxIndicatorX = new SpringAnimation(indicator, DynamicAnimation.TRANSLATION_X);
+            mDxIndicatorX.setSpring(new SpringForce().setDampingRatio(0.62f).setStiffness(420f));
+            FloatValueHolder holder = new FloatValueHolder(indicator.getLayoutParams().width);
+            mDxIndicatorW = new SpringAnimation(holder);
+            mDxIndicatorW.setSpring(new SpringForce().setDampingRatio(0.7f).setStiffness(420f));
+            mDxIndicatorW.addUpdateListener((a, value, velocity) -> setDxIndicatorWidth(indicator, value));
+        }
+        mDxIndicatorX.animateToFinalPosition(x);
+        mDxIndicatorW.animateToFinalPosition(w);
     }
 
     private static void setDxIndicatorWidth(View indicator, float w) {
