@@ -577,7 +577,9 @@ public class NavigationActivity extends BaseActivity
             tab.setOnClickListener(v -> openSection(cls));
             DxMotion.press(tab);
             tab.addOnLayoutChangeListener((v, l, t, r, bt, ol, ot, or, ob) -> {
-                if (v == mDxActiveTab && (r - l != or - ol || l != ol)) syncDxIndicator();
+                // usa os limites finais do layout: durante a transição getWidth() devolve
+                // a largura antiga (o ChangeBounds anima a partir dela)
+                if (v == mDxActiveTab && (r - l != or - ol || l != ol)) syncDxIndicator(l, r - l);
             });
         }
     }
@@ -596,16 +598,17 @@ public class NavigationActivity extends BaseActivity
             indicator.setVisibility(View.INVISIBLE);
             return;
         }
-        // a aba ativa muda de largura quando o rótulo aparece; acompanha cada novo layout
-        tab.post(this::syncDxIndicator);
+        // posição inicial; nas trocas seguintes quem move a pílula é o listener de layout
+        if (!mDxIndicatorPlaced || indicator.getVisibility() != View.VISIBLE) {
+            tab.post(() -> {
+                if (tab == mDxActiveTab) syncDxIndicator(tab.getLeft(), tab.getWidth());
+            });
+        }
     }
 
-    private void syncDxIndicator() {
+    private void syncDxIndicator(float x, float w) {
         View indicator = findViewById(R.id.dx_nav_indicator);
-        View tab = mDxActiveTab;
-        if (indicator == null || tab == null) return;
-        float x = tab.getLeft();
-        float w = tab.getWidth();
+        if (indicator == null || mDxActiveTab == null) return;
         if (w <= 0) return;
         if (!mDxIndicatorPlaced || indicator.getVisibility() != View.VISIBLE || !DxMotion.enabled()) {
             mDxIndicatorPlaced = true;

@@ -22,8 +22,8 @@ android {
         applicationId "com.smartpack.kernelmanager"
         minSdk 21
         targetSdk 34
-        versionCode 188
-        versionName "v18.8-drxok"
+        versionCode 189
+        versionName "v18.9-drxok"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         testFunctionalTest = false
