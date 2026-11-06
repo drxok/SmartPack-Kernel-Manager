@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="50dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:minWidth="50dp"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/dx_tab_icon"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:importantForAccessibility="no" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/dx_tab_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/inter_semibold"
+        android:maxLines="1"
+        android:textColor="@color/dx_ink"
+        android:textSize="14sp"
+        android:visibility="gone" />
+</LinearLayout>

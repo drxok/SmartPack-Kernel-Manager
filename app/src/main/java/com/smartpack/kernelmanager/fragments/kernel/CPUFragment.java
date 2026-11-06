@@ -43,6 +43,7 @@ import com.smartpack.kernelmanager.utils.tools.PathReader;
 import com.smartpack.kernelmanager.views.dialog.Dialog;
 import com.smartpack.kernelmanager.views.recyclerview.CardView;
 import com.smartpack.kernelmanager.views.recyclerview.DescriptionView;
+import com.smartpack.kernelmanager.views.recyclerview.DxChipsView;
 import com.smartpack.kernelmanager.views.recyclerview.GenericSelectView;
 import com.smartpack.kernelmanager.views.recyclerview.RecyclerViewItem;
 import com.smartpack.kernelmanager.views.recyclerview.SelectView;
@@ -65,19 +66,19 @@ public class CPUFragment extends RecyclerViewFragment {
     private SelectView mCPUMaxBig;
     private SelectView mCPUMinBig;
     private SelectView mCPUMaxScreenOffBig;
-    private SelectView mCPUGovernorBig;
+    private DxChipsView mCPUGovernorBig;
 
     private XYGraphView mCPUUsageMid;
     private SelectView mCPUMaxMid;
     private SelectView mCPUMinMid;
     private SelectView mCPUMaxScreenOffMid;
-    private SelectView mCPUGovernorMid;
+    private DxChipsView mCPUGovernorMid;
 
     private XYGraphView mCPUUsageLITTLE;
     private SelectView mCPUMaxLITTLE;
     private SelectView mCPUMinLITTLE;
     private SelectView mCPUMaxScreenOffLITTLE;
-    private SelectView mCPUGovernorLITTLE;
+    private DxChipsView mCPUGovernorLITTLE;
 
     private final SparseArray<SwitchView> mCoresBig = new SparseArray<>();
     private final SparseArray<SwitchView> mCoresMid = new SparseArray<>();
@@ -181,10 +182,11 @@ public class CPUFragment extends RecyclerViewFragment {
             cpuCard.setTitle(getString(R.string.cluster_big));
         }
 
-        mCPUGovernorBig = new SelectView();
+        mCPUGovernorBig = new DxChipsView();
         mCPUGovernorBig.setTitle(getString(R.string.cpu_governor));
         mCPUGovernorBig.setSummary(getString(R.string.cpu_governor_summary));
         mCPUGovernorBig.setItems(mCPUFreq.getGovernors());
+        labelGovernors(mCPUGovernorBig);
         mCPUGovernorBig.setOnItemSelected((selectView, position, item) -> mCPUFreq.setGovernor(item, bigCores.get(0), bigCores.get(bigCores.size() - 1),
                 getActivity()));
         cpuCard.addItem(mCPUGovernorBig);
@@ -250,10 +252,11 @@ public class CPUFragment extends RecyclerViewFragment {
                     cpuMidCard.addItem(mCPUMaxScreenOffMid);
                 }
 
-                mCPUGovernorMid = new SelectView();
+                mCPUGovernorMid = new DxChipsView();
                 mCPUGovernorMid.setTitle(getString(R.string.cpu_governor));
                 mCPUGovernorMid.setSummary(getString(R.string.cpu_governor_summary));
                 mCPUGovernorMid.setItems(mCPUFreq.getGovernors());
+        labelGovernors(mCPUGovernorMid);
                 mCPUGovernorMid.setOnItemSelected((selectView, position, item)
                         -> mCPUFreq.setGovernor(item, MidCores.get(0), MidCores.get(MidCores.size() - 1),
                         getActivity()));
@@ -314,10 +317,11 @@ public class CPUFragment extends RecyclerViewFragment {
                 cpuLITTLECard.addItem(mCPUMaxScreenOffLITTLE);
             }
 
-            mCPUGovernorLITTLE = new SelectView();
+            mCPUGovernorLITTLE = new DxChipsView();
             mCPUGovernorLITTLE.setTitle(getString(R.string.cpu_governor));
             mCPUGovernorLITTLE.setSummary(getString(R.string.cpu_governor_summary));
             mCPUGovernorLITTLE.setItems(mCPUFreq.getGovernors());
+        labelGovernors(mCPUGovernorLITTLE);
             mCPUGovernorLITTLE.setOnItemSelected((selectView, position, item) -> mCPUFreq.setGovernor(item, LITTLECores.get(0), LITTLECores.get(LITTLECores.size() - 1),
                     getActivity()));
             cpuLITTLECard.addItem(mCPUGovernorLITTLE);
@@ -705,6 +709,16 @@ public class CPUFragment extends RecyclerViewFragment {
                 }
             }
         } catch (ConcurrentModificationException ignored) {
+        }
+    }
+
+
+    /** Kernel Dr.xok: o "schedutil" do kernel Dr.xok é o governador econômico */
+    private void labelGovernors(DxChipsView view) {
+        List<String> governors = mCPUFreq.getGovernors();
+        if (governors != null && governors.contains("schedutil_orig")) {
+            view.setItemLabel("schedutil", getString(R.string.drxok_gov_eco));
+            view.setItemLabel("schedutil_orig", getString(R.string.drxok_gov_orig));
         }
     }
 

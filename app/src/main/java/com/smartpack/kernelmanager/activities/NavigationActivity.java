@@ -19,6 +19,11 @@
  */
 package com.smartpack.kernelmanager.activities;
 
+import android.content.res.ColorStateList;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
+import com.google.android.material.textview.MaterialTextView;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
@@ -70,6 +75,8 @@ import com.smartpack.kernelmanager.fragments.other.AboutFragment;
 import com.smartpack.kernelmanager.fragments.other.ContributorsFragment;
 import com.smartpack.kernelmanager.fragments.other.FAQFragment;
 import com.smartpack.kernelmanager.fragments.other.SettingsFragment;
+import com.smartpack.kernelmanager.fragments.dx.DashboardFragment;
+import com.smartpack.kernelmanager.fragments.dx.SectionsFragment;
 import com.smartpack.kernelmanager.fragments.statistics.DeviceFragment;
 import com.smartpack.kernelmanager.fragments.statistics.InputsFragment;
 import com.smartpack.kernelmanager.fragments.statistics.MemoryFragment;
@@ -179,6 +186,9 @@ public class NavigationActivity extends BaseActivity
 
     private void initFragments() {
         mFragments.clear();
+        // Kernel Dr.xok: telas do visual novo
+        mFragments.add(new NavigationActivity.NavigationFragment(R.string.dx_dashboard, DashboardFragment.class, R.drawable.ic_dashboard));
+        mFragments.add(new NavigationActivity.NavigationFragment(R.string.dx_sections, SectionsFragment.class, R.drawable.dx_ic_grid));
         mFragments.add(new NavigationActivity.NavigationFragment(R.string.statistics));
         mFragments.add(new NavigationActivity.NavigationFragment(R.string.overall, OverallFragment.class, R.drawable.ic_dashboard));
         mFragments.add(new NavigationActivity.NavigationFragment(R.string.device, DeviceFragment.class, R.drawable.ic_device));
@@ -262,9 +272,9 @@ public class NavigationActivity extends BaseActivity
         setSupportActionBar(toolbar);
 
         mDrawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawer, toolbar, 0, 0);
-        mDrawer.addDrawerListener(toggle);
-        toggle.syncState();
+        // Kernel Dr.xok: sem menu lateral; a navegação é a barra flutuante
+        mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        initDxNavBar();
 
         mNavigationView = findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -290,7 +300,7 @@ public class NavigationActivity extends BaseActivity
             }
             getIntent().removeExtra("selection");
         } else if (savedInstanceState == null) {
-            String defaultFragmentName = Prefs.getString("default_section", "OverallFragment", this);
+            String defaultFragmentName = Prefs.getString("dx_default_section", "DashboardFragment", this);
             for (Map.Entry<Integer, Class<? extends Fragment>> entry : mActualFragments.entrySet()) {
                 Class<? extends Fragment> fragmentClass = entry.getValue();
                 if (fragmentClass != null && Objects.equals(fragmentClass.getSimpleName(), defaultFragmentName)) {
@@ -420,7 +430,10 @@ public class NavigationActivity extends BaseActivity
             Fragment currentFragment = getFragment(mSelection);
             if (!(currentFragment instanceof BaseFragment)
                     || !((BaseFragment) currentFragment).onBackPressed()) {
-                if (mExit) {
+                if (mActualFragments.get(mSelection) != DashboardFragment.class
+                        && mActualFragments.containsValue(DashboardFragment.class)) {
+                    openSection(DashboardFragment.class);
+                } else if (mExit) {
                     mExit = false;
                     super.onBackPressed();
                 } else {
@@ -467,6 +480,7 @@ public class NavigationActivity extends BaseActivity
         mNavigationView.setCheckedItem(res);
         mSelection = res;
         final Fragment fragment = getFragment(res);
+        updateDxChrome(mActualFragments.get(res));
 
         if (saveOpened) {
             String openedName = fragment.getClass().getSimpleName() + "_opened";
@@ -487,6 +501,64 @@ public class NavigationActivity extends BaseActivity
         return fragment;
     }
 
+    // ------------------------------------------------------------ Kernel Dr.xok
+
+    /** abre a seção da classe indicada (se o aparelho tiver) */
+    public void openSection(Class<? extends Fragment> fragmentClass) {
+        for (Map.Entry<Integer, Class<? extends Fragment>> entry : mActualFragments.entrySet()) {
+            if (entry.getValue() == fragmentClass) {
+                onItemSelected(entry.getKey(), false, true);
+                return;
+            }
+        }
+    }
+
+    private static final Class<?>[] DX_TABS = {
+            DashboardFragment.class, SectionsFragment.class, CPUFragment.class, BatteryFragment.class
+    };
+    private static final int[] DX_TAB_IDS = {R.id.dx_tab_dashboard, R.id.dx_tab_sections, R.id.dx_tab_cpu, R.id.dx_tab_battery};
+    private static final int[] DX_TAB_ICONS = {R.drawable.ic_dashboard, R.drawable.dx_ic_grid, R.drawable.ic_cpu, R.drawable.ic_battery};
+    private static final int[] DX_TAB_LABELS = {R.string.dx_dashboard, R.string.dx_sections, R.string.cpu, R.string.battery};
+
+    @SuppressWarnings("unchecked")
+    private void initDxNavBar() {
+        for (int i = 0; i < DX_TABS.length; i++) {
+            final Class<? extends Fragment> cls = (Class<? extends Fragment>) DX_TABS[i];
+            View tab = findViewById(DX_TAB_IDS[i]);
+            if (tab == null) continue;
+            AppCompatImageView icon = tab.findViewById(R.id.dx_tab_icon);
+            MaterialTextView label = tab.findViewById(R.id.dx_tab_label);
+            icon.setImageResource(DX_TAB_ICONS[i]);
+            label.setText(DX_TAB_LABELS[i]);
+            tab.setContentDescription(getString(DX_TAB_LABELS[i]));
+            tab.setVisibility(mActualFragments.containsValue(cls) ? View.VISIBLE : View.GONE);
+            tab.setOnClickListener(v -> openSection(cls));
+        }
+    }
+
+    private void updateDxChrome(Class<? extends Fragment> current) {
+        // Painel e Seções têm cabeçalho próprio
+        View appBar = getAppBarLayout();
+        if (appBar != null) {
+            boolean own = current == DashboardFragment.class || current == SectionsFragment.class;
+            appBar.setVisibility(own ? View.GONE : View.VISIBLE);
+            appBar.setTranslationY(0);
+        }
+        int active = ContextCompat.getColor(this, R.color.dx_ink);
+        int idle = ContextCompat.getColor(this, R.color.dx_text_muted);
+        for (int i = 0; i < DX_TABS.length; i++) {
+            View tab = findViewById(DX_TAB_IDS[i]);
+            if (tab == null) continue;
+            boolean on = DX_TABS[i] == current;
+            AppCompatImageView icon = tab.findViewById(R.id.dx_tab_icon);
+            MaterialTextView label = tab.findViewById(R.id.dx_tab_label);
+            tab.setBackgroundResource(on ? R.drawable.dx_nav_active : 0);
+            icon.setImageTintList(ColorStateList.valueOf(on ? active : idle));
+            label.setVisibility(on ? View.VISIBLE : View.GONE);
+            tab.setSelected(on);
+        }
+    }
+
     public static class NavigationFragment implements Parcelable {
 
         public int mId;
@@ -501,6 +573,10 @@ public class NavigationActivity extends BaseActivity
             mId = id;
             mFragmentClass = fragment;
             mDrawable = drawable;
+        }
+
+        public int getDrawable() {
+            return mDrawable;
         }
 
         NavigationFragment(Parcel parcel) {

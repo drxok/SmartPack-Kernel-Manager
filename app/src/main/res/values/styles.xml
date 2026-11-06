@@ -1,14 +1,77 @@
 <resources>
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Kernel Dr.xok: tema escuro roxo, sempre -->
+    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">?android:attr/colorAccent</item>
-        <item name="colorOnPrimary">?android:attr/textColorPrimary</item>
-        <item name="colorOnSecondary">?android:colorBackground</item>
-        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
+        <item name="colorPrimary">@color/dx_lilac</item>
+        <item name="colorOnPrimary">@color/dx_ink</item>
+        <item name="colorPrimaryContainer">@color/dx_lilac_dark</item>
+        <item name="colorOnPrimaryContainer">@color/dx_ink</item>
+        <item name="colorSecondary">@color/dx_pink</item>
+        <item name="colorOnSecondary">@color/dx_pink_ink</item>
+        <item name="colorSecondaryContainer">@color/dx_surface</item>
+        <item name="colorOnSecondaryContainer">@color/dx_text</item>
+        <item name="colorTertiary">@color/dx_mint</item>
+        <item name="colorAccent">@color/dx_lilac</item>
+        <item name="colorPrimaryDark">@color/dx_bg_top</item>
+        <item name="android:colorBackground">@color/dx_bg_mid</item>
+        <item name="colorSurface">@color/dx_surface</item>
+        <item name="colorOnSurface">@color/dx_text</item>
+        <item name="colorSurfaceContainer">@color/dx_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/dx_surface</item>
+        <item name="colorSurfaceContainerHighest">@color/dx_surface</item>
+        <item name="colorOnSurfaceVariant">@color/dx_text_muted</item>
+        <item name="colorOutline">@color/dx_stroke</item>
+        <item name="android:textColorPrimary">@color/dx_text</item>
+        <item name="android:textColorSecondary">@color/dx_text_muted</item>
+        <item name="android:windowBackground">@drawable/dx_bg</item>
+        <item name="android:statusBarColor">@color/dx_bg_top</item>
+        <item name="android:navigationBarColor">@color/dx_bg_bottom</item>
+        <item name="android:fontFamily">@font/inter_regular</item>
+        <item name="fontFamily">@font/inter_regular</item>
+        <item name="materialCardViewStyle">@style/Dx.Card</item>
+        <item name="materialAlertDialogTheme">@style/Dx.Dialog</item>
         <item name="banner_frame_drawable">@drawable/drawable_frame_light</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Dx.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/dx_surface_glass</item>
+        <item name="cardCornerRadius">26dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/dx_stroke</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Dx.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/dx_surface</item>
+        <item name="colorPrimary">@color/dx_lilac</item>
+        <item name="shapeAppearanceOverlay">@style/Dx.Shape.Dialog</item>
+    </style>
+
+    <style name="Dx.Shape.Dialog" parent="">
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="Dx.Title" parent="">
+        <item name="android:fontFamily">@font/sora_extrabold</item>
+        <item name="android:textColor">@color/dx_text</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="Dx.CardTitle" parent="">
+        <item name="android:fontFamily">@font/sora_bold</item>
+        <item name="android:textColor">@color/dx_text</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Dx.ToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/sora_extrabold</item>
+        <item name="fontFamily">@font/sora_extrabold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/dx_text</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Dark" />
 
 </resources>

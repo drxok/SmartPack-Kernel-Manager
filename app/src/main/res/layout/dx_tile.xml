@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kernel Dr.xok: bloco colorido do Painel -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dx_tile"
+    android:minHeight="116dp"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tile_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_semibold"
+        android:textSize="12sp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tile_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/sora_extrabold"
+        android:textSize="24sp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tile_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/tile_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        android:visibility="gone"
+        app:trackCornerRadius="6dp"
+        app:trackThickness="6dp" />
+</LinearLayout>

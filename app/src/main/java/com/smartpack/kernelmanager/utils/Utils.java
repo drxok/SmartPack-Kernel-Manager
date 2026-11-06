@@ -113,13 +113,8 @@ public class Utils {
     }
 
     public static void initializeAppTheme(Context context) {
-        if (Prefs.getBoolean("darktheme", true, context)) {
-            AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        // Kernel Dr.xok: o visual novo é sempre escuro
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
     }
 
     public static void startService(Context context, Intent intent) {

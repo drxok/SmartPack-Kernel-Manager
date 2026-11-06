@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="@dimen/banner_default_height"
+        android:paddingBottom="110dp"
         android:clipToPadding="false"
         android:visibility="gone" />
 
@@ -51,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="@dimen/recyclerview_fab_margin_bottom"
+        android:layout_marginBottom="104dp"
         android:layout_marginEnd="@dimen/recyclerview_fab_margin_right"
         android:visibility="gone"
         app:backgroundTint="?attr/colorAccent"/>

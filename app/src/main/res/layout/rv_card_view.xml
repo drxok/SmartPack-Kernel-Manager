@@ -8,7 +8,10 @@
     android:focusable="false"
     app:cardCornerRadius="@dimen/cardview_radius"
     app:cardElevation="@dimen/cardview_elevation"
-    app:cardUseCompatPadding="true" >
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@color/dx_surface_glass"
+    app:strokeColor="@color/dx_stroke"
+    app:strokeWidth="1dp" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +28,10 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="10dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="6dp"
                 tools:ignore="UselessParent">
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -43,8 +49,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:focusable="false"
-                    android:textColor="?attr/colorAccent"
-                    android:textSize="18sp" />
+                    android:textAppearance="@style/Dx.CardTitle"
+                    android:fontFamily="@font/sora_bold"
+                    android:textColor="@color/dx_text"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/arrow_image"
@@ -67,8 +75,9 @@
                 android:layout_height="wrap_content"
                 android:focusable="false"
                 android:orientation="vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="8dp" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/menu_button"

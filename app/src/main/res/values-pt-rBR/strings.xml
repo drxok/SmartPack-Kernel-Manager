@@ -1197,4 +1197,50 @@
     <string name="drxok_no_limit">Sem limite</string>
     <string name="drxok_charge_hyst">Voltar a carregar depois de cair</string>
     <string name="drxok_charge_hyst_summary">Quanto a bateria precisa cair abaixo do limite para carregar de novo.</string>
+
+    <!-- Kernel Dr.xok: visual novo -->
+    <string name="drxok_health_of">%1$d de %2$d mAh</string>
+    <string name="drxok_health_short">saúde</string>
+    <string name="drxok_health_good">Boa</string>
+    <string name="drxok_health_fair">Regular</string>
+    <string name="drxok_health_worn">Desgastada</string>
+    <string name="drxok_gov_eco">schedutil (eco)</string>
+    <string name="drxok_gov_orig">schedutil (original)</string>
+    <string name="dx_dashboard">Painel</string>
+    <string name="dx_sections">Seções</string>
+    <string name="dx_kernel_active">Kernel ativo</string>
+    <string name="dx_hello">Olá, %1$s</string>
+    <string name="dx_cpu_big">CPU grandes</string>
+    <string name="dx_cpu_little">CPU pequenos</string>
+    <string name="dx_temperature">Temperatura</string>
+    <string name="dx_mhz_gov">MHz · %1$s</string>
+    <string name="dx_mhz_max">MHz · máx. %1$d</string>
+    <string name="dx_of">%1$s de %2$s</string>
+    <string name="dx_off">desligado</string>
+    <string name="dx_sections_title1">Ajuste o</string>
+    <string name="dx_sections_title2">seu kernel</string>
+    <string name="dx_sections_hint">Só aparece o que o seu kernel suporta.</string>
+    <string name="dx_search_hint">Buscar ajuste…</string>
+    <string name="dx_feat_cpu">Frequência e governador</string>
+    <string name="dx_feat_gpu">Frequência da GPU</string>
+    <string name="dx_feat_battery">Limite e saúde</string>
+    <string name="dx_feat_memory">ZRAM e swappiness</string>
+    <string name="dx_t_efficient_freq">Frequência econômica</string>
+    <string name="dx_t_efficient_freq_d">A CPU segura aqui até a carga ficar contínua. Economiza bateria sem travar o uso normal.</string>
+    <string name="dx_t_up_delay">Espera para subir</string>
+    <string name="dx_t_up_delay_d">Quanto tempo a carga precisa durar antes de passar da frequência econômica (microssegundos).</string>
+    <string name="dx_t_up_rate">Intervalo para subir</string>
+    <string name="dx_t_up_rate_d">Tempo mínimo entre aumentos de frequência (microssegundos).</string>
+    <string name="dx_t_down_rate">Intervalo para descer</string>
+    <string name="dx_t_down_rate_d">Tempo mínimo entre reduções de frequência (microssegundos).</string>
+    <string name="dx_t_rate">Intervalo de troca</string>
+    <string name="dx_t_rate_d">Tempo mínimo entre trocas de frequência (microssegundos).</string>
+    <string name="dx_t_hispeed_freq">Frequência rápida</string>
+    <string name="dx_t_hispeed_freq_d">Frequência usada na hora quando a carga fica alta.</string>
+    <string name="dx_t_hispeed_load">Carga para acelerar</string>
+    <string name="dx_t_hispeed_load_d">Carga (%) que faz a CPU pular para a frequência rápida.</string>
+    <string name="dx_t_iowait">Reforço ao ler o armazenamento</string>
+    <string name="dx_t_iowait_d">Sobe a frequência enquanto os apps esperam o armazenamento (1 = ligado).</string>
+    <string name="dx_t_pl">Carga prevista</string>
+    <string name="dx_t_pl_d">Usa uma previsão da carga para reagir mais rápido (1 = ligado).</string>
 </resources>

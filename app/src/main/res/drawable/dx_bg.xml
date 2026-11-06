@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kernel Dr.xok: fundo roxo em degradê -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="290"
+        android:startColor="@color/dx_bg_top"
+        android:centerColor="@color/dx_bg_mid"
+        android:endColor="@color/dx_bg_bottom"
+        android:type="linear" />
+</shape>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#212121</color>
-    <color name="colorPrimaryVariant">#000000</color>
+    <color name="colorPrimary">#1A1333</color>
+    <color name="colorPrimaryVariant">#1A1333</color>
     <color name="colorOnPrimary">#FFFFFF</color>
 
     <color name="red_accent">#ef5350</color>
@@ -19,4 +19,24 @@
     <color name="colorPerformance">#fb8c00</color>
     <color name="colorBattery">#03a9f4</color>
     <color name="colorGaming">#ef5350</color>
+
+    <!-- Kernel Dr.xok: paleta nova -->
+    <color name="dx_bg_top">#2B1E52</color>
+    <color name="dx_bg_mid">#1A1333</color>
+    <color name="dx_bg_bottom">#120D24</color>
+    <color name="dx_surface">#241B45</color>
+    <color name="dx_surface_glass">#14FFFFFF</color>
+    <color name="dx_stroke">#1FFFFFFF</color>
+    <color name="dx_text">#F4F0FF</color>
+    <color name="dx_text_muted">#B9AEDB</color>
+    <color name="dx_ink">#1A1333</color>
+    <color name="dx_nav">#0E0A1D</color>
+    <color name="dx_lilac">#C9B8FF</color>
+    <color name="dx_lilac_dark">#A996F5</color>
+    <color name="dx_pink">#F7B8D8</color>
+    <color name="dx_pink_ink">#3A1029</color>
+    <color name="dx_mint">#B6EBC7</color>
+    <color name="dx_mint_ink">#0F3320</color>
+    <color name="dx_butter">#F3E58F</color>
+    <color name="dx_butter_ink">#3A3205</color>
 </resources>

@@ -1196,4 +1196,50 @@
     <string name="drxok_no_limit">No limit</string>
     <string name="drxok_charge_hyst">Resume charging after dropping</string>
     <string name="drxok_charge_hyst_summary">How much the battery must drop below the limit before charging again.</string>
+
+    <!-- Kernel Dr.xok: visual novo -->
+    <string name="drxok_health_of">%1$d of %2$d mAh</string>
+    <string name="drxok_health_short">health</string>
+    <string name="drxok_health_good">Good</string>
+    <string name="drxok_health_fair">Fair</string>
+    <string name="drxok_health_worn">Worn</string>
+    <string name="drxok_gov_eco">schedutil (eco)</string>
+    <string name="drxok_gov_orig">schedutil (stock)</string>
+    <string name="dx_dashboard">Dashboard</string>
+    <string name="dx_sections">Sections</string>
+    <string name="dx_kernel_active">Active kernel</string>
+    <string name="dx_hello">Hello, %1$s</string>
+    <string name="dx_cpu_big">Big cores</string>
+    <string name="dx_cpu_little">Little cores</string>
+    <string name="dx_temperature">Temperature</string>
+    <string name="dx_mhz_gov">MHz · %1$s</string>
+    <string name="dx_mhz_max">MHz · max %1$d</string>
+    <string name="dx_of">%1$s of %2$s</string>
+    <string name="dx_off">off</string>
+    <string name="dx_sections_title1">Tune</string>
+    <string name="dx_sections_title2">your kernel</string>
+    <string name="dx_sections_hint">Only what your kernel supports shows up.</string>
+    <string name="dx_search_hint">Search a setting…</string>
+    <string name="dx_feat_cpu">Frequency and governor</string>
+    <string name="dx_feat_gpu">GPU frequency</string>
+    <string name="dx_feat_battery">Limit and health</string>
+    <string name="dx_feat_memory">ZRAM and swappiness</string>
+    <string name="dx_t_efficient_freq">Efficient frequency</string>
+    <string name="dx_t_efficient_freq_d">The CPU holds here until the load becomes sustained. Saves battery without slowing normal use.</string>
+    <string name="dx_t_up_delay">Wait before going up</string>
+    <string name="dx_t_up_delay_d">How long the load must last before passing the efficient frequency (microseconds).</string>
+    <string name="dx_t_up_rate">Ramp-up interval</string>
+    <string name="dx_t_up_rate_d">Minimum time between frequency increases (microseconds).</string>
+    <string name="dx_t_down_rate">Ramp-down interval</string>
+    <string name="dx_t_down_rate_d">Minimum time between frequency decreases (microseconds).</string>
+    <string name="dx_t_rate">Change interval</string>
+    <string name="dx_t_rate_d">Minimum time between frequency changes (microseconds).</string>
+    <string name="dx_t_hispeed_freq">High-speed frequency</string>
+    <string name="dx_t_hispeed_freq_d">Frequency used right away when the load gets high.</string>
+    <string name="dx_t_hispeed_load">High-speed load</string>
+    <string name="dx_t_hispeed_load_d">Load (%) that triggers the high-speed frequency.</string>
+    <string name="dx_t_iowait">Boost while reading storage</string>
+    <string name="dx_t_iowait_d">Raises the frequency while apps wait for storage (1 = on).</string>
+    <string name="dx_t_pl">Predicted load</string>
+    <string name="dx_t_pl_d">Uses a load prediction to react faster (1 = on).</string>
 </resources>

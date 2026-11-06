@@ -463,7 +463,8 @@ public class Battery {
 
     public boolean supported() {
         return hasFastCharge() || haschargeLevel() || hasUSBFastCharge() || hasBlx()
-                || hasbatterychargelimit() || hasOPOTGSwitch() || hasChargingEnable();
+                || hasbatterychargelimit() || hasOPOTGSwitch() || hasChargingEnable()
+                || hasDrxokChargeLimit() || getChargeFullMah() > 0;
     }
 
     /*

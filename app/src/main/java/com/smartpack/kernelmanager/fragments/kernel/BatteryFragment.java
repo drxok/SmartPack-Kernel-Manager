@@ -30,6 +30,8 @@ import com.smartpack.kernelmanager.utils.Utils;
 import com.smartpack.kernelmanager.utils.kernel.battery.Battery;
 import com.smartpack.kernelmanager.views.recyclerview.CardView;
 import com.smartpack.kernelmanager.views.recyclerview.DescriptionView;
+import com.smartpack.kernelmanager.views.recyclerview.DxBatteryHeroView;
+import com.smartpack.kernelmanager.views.recyclerview.DxChipsView;
 import com.smartpack.kernelmanager.views.recyclerview.GenericSelectView;
 import com.smartpack.kernelmanager.views.recyclerview.RecyclerViewItem;
 import com.smartpack.kernelmanager.views.recyclerview.SeekBarView;
@@ -72,88 +74,108 @@ public class BatteryFragment extends RecyclerViewFragment {
     }
 
     /*
-     * Kernel Dr.xok: limite de carga do kernel e saúde da bateria
+     * Kernel Dr.xok: saúde da bateria (cartão verde) e limite de carga do kernel
      */
     private void drxokInit(List<RecyclerViewItem> items) {
-        CardView card = new CardView(getActivity());
-        card.setTitle(getString(R.string.drxok_battery));
-
         int full = Battery.getChargeFullMah();
         int design = mBattery.getDesignMah();
         int cycles = Battery.getCycleCount();
         if (full > 0) {
-            StringBuilder sb = new StringBuilder();
-            if (design > 0) {
-                sb.append(getString(R.string.drxok_health_capacity, full, design,
-                        Math.round(full * 100f / design)));
-            } else {
-                sb.append(getString(R.string.drxok_health_capacity_only, full));
-            }
+            int pct = design > 0 ? Math.round(full * 100f / design) : 100;
+            StringBuilder details = new StringBuilder();
+            details.append(design > 0 ? getString(R.string.drxok_health_of, full, design)
+                    : getString(R.string.drxok_health_capacity_only, full));
             if (cycles >= 0) {
-                sb.append("\n").append(getString(R.string.drxok_health_cycles, cycles));
+                details.append("\n").append(getString(R.string.drxok_health_cycles, cycles));
             }
-            DescriptionView health = new DescriptionView();
-            health.setTitle(getString(R.string.drxok_health));
-            health.setSummary(sb.toString());
-            card.addItem(health);
+            String badge = getString(pct >= 80 ? R.string.drxok_health_good
+                    : pct >= 60 ? R.string.drxok_health_fair : R.string.drxok_health_worn);
+
+            DxBatteryHeroView hero = new DxBatteryHeroView();
+            hero.setData(pct, getString(R.string.drxok_health_short), getString(R.string.drxok_health),
+                    details.toString(), badge);
+            hero.setFullSpan(true);
+            items.add(hero);
         }
 
-        if (Battery.hasDrxokChargeLimit()) {
-            // 50% ... 99% e "sem limite" (100)
-            List<String> limits = new ArrayList<>();
-            for (int i = 50; i <= 99; i++) {
-                limits.add(i + "%");
+        if (!Battery.hasDrxokChargeLimit()) return;
+
+        CardView card = new CardView(getActivity());
+        card.setTitle(getString(R.string.drxok_charge_limit));
+
+        // 50% ... 99% e "sem limite" (100)
+        List<String> limits = new ArrayList<>();
+        for (int i = 50; i <= 99; i++) {
+            limits.add(i + "%");
+        }
+        limits.add(getString(R.string.drxok_no_limit));
+
+        int cur = Battery.getDrxokChargeLimit();
+        if (cur < 50 || cur > 100) cur = 100;
+
+        SeekBarView limit = new SeekBarView();
+        DxChipsView presets = new DxChipsView();
+
+        limit.setSummary(getString(R.string.drxok_charge_limit_summary));
+        limit.setItems(limits);
+        limit.setProgress(cur - 50);
+        limit.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+            @Override
+            public void onStop(SeekBarView seekBarView, int position, String value) {
+                mBattery.setDrxokChargeLimit(position + 50, getActivity());
+                presets.setItem(String.valueOf(position + 50));
             }
-            limits.add(getString(R.string.drxok_no_limit));
 
-            int cur = Battery.getDrxokChargeLimit();
-            if (cur < 50 || cur > 100) cur = 100;
+            @Override
+            public void onMove(SeekBarView seekBarView, int position, String value) {
+            }
+        });
+        card.addItem(limit);
 
-            SeekBarView limit = new SeekBarView();
-            limit.setTitle(getString(R.string.drxok_charge_limit));
-            limit.setSummary(getString(R.string.drxok_charge_limit_summary));
-            limit.setItems(limits);
-            limit.setProgress(cur - 50);
-            limit.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+        List<String> presetValues = new ArrayList<>();
+        presetValues.add("70");
+        presetValues.add("80");
+        presetValues.add("90");
+        presetValues.add("100");
+        presets.setItems(presetValues);
+        presets.setItemLabel("70", "70%");
+        presets.setItemLabel("80", "80%");
+        presets.setItemLabel("90", "90%");
+        presets.setItemLabel("100", getString(R.string.drxok_no_limit));
+        presets.setAccent(R.color.dx_butter, R.color.dx_butter_ink);
+        presets.setItem(String.valueOf(cur));
+        presets.setOnItemSelected((view, position, item) -> {
+            int v = Integer.parseInt(item);
+            mBattery.setDrxokChargeLimit(v, getActivity());
+            limit.setProgress(v - 50);
+        });
+        card.addItem(presets);
+
+        if (Battery.hasDrxokChargeHyst()) {
+            int h = Battery.getDrxokChargeHyst();
+            if (h < 1 || h > 30) h = 5;
+
+            SeekBarView hyst = new SeekBarView();
+            hyst.setTitle(getString(R.string.drxok_charge_hyst));
+            hyst.setSummary(getString(R.string.drxok_charge_hyst_summary));
+            hyst.setUnit("%");
+            hyst.setMin(1);
+            hyst.setMax(30);
+            hyst.setProgress(h - 1);
+            hyst.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
                 @Override
                 public void onStop(SeekBarView seekBarView, int position, String value) {
-                    mBattery.setDrxokChargeLimit(position + 50, getActivity());
+                    mBattery.setDrxokChargeHyst(position + 1, getActivity());
                 }
 
                 @Override
                 public void onMove(SeekBarView seekBarView, int position, String value) {
                 }
             });
-            card.addItem(limit);
-
-            if (Battery.hasDrxokChargeHyst()) {
-                int h = Battery.getDrxokChargeHyst();
-                if (h < 1 || h > 30) h = 5;
-
-                SeekBarView hyst = new SeekBarView();
-                hyst.setTitle(getString(R.string.drxok_charge_hyst));
-                hyst.setSummary(getString(R.string.drxok_charge_hyst_summary));
-                hyst.setUnit("%");
-                hyst.setMin(1);
-                hyst.setMax(30);
-                hyst.setProgress(h - 1);
-                hyst.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
-                    @Override
-                    public void onStop(SeekBarView seekBarView, int position, String value) {
-                        mBattery.setDrxokChargeHyst(position + 1, getActivity());
-                    }
-
-                    @Override
-                    public void onMove(SeekBarView seekBarView, int position, String value) {
-                    }
-                });
-                card.addItem(hyst);
-            }
+            card.addItem(hyst);
         }
 
-        if (card.size() > 0) {
-            items.add(card);
-        }
+        items.add(card);
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

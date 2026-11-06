@@ -24,6 +24,7 @@ import com.smartpack.kernelmanager.R;
 import com.smartpack.kernelmanager.fragments.ApplyOnBootFragment;
 import com.smartpack.kernelmanager.fragments.DescriptionFragment;
 import com.smartpack.kernelmanager.fragments.RecyclerViewFragment;
+import com.smartpack.kernelmanager.utils.DxTunables;
 import com.smartpack.kernelmanager.utils.Utils;
 import com.smartpack.kernelmanager.utils.ViewUtils;
 import com.smartpack.kernelmanager.utils.kernel.cpu.CPUFreq;
@@ -101,8 +102,14 @@ public class PathReaderFragment extends RecyclerViewFragment {
                 final String value = Utils.readFile(file.getAbsolutePath());
                 if (!value.isEmpty() && !value.contains("\n")) {
                     DescriptionView descriptionView = new DescriptionView();
-                    descriptionView.setTitle(name);
-                    descriptionView.setSummary(value);
+                    String dxTitle = DxTunables.title(name, requireActivity());
+                    if (dxTitle != null) {
+                        descriptionView.setTitle(dxTitle + "  ·  " + value);
+                        descriptionView.setSummary(DxTunables.description(name, requireActivity()) + "\n(" + name + ")");
+                    } else {
+                        descriptionView.setTitle(name);
+                        descriptionView.setSummary(value);
+                    }
                     descriptionView.setOnItemClickListener(item -> {
                         List<Integer> freqs = CPUFreq.getInstance(getActivity()).getFreqs(PathReader.getMin());
                         int freq = Utils.strToInt(value);
