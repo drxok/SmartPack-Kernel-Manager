@@ -1185,4 +1185,16 @@
     <string name="gpu_throttling_summary">"Reduzir performance quando a GPU sobreaquecer."</string>
     <string name="printk_devkmsg">"Imprimir devkmsg"</string>
     <string name="printk_devkmsg_summary">"Desative a Impressão de devkmsg do serviço de registro do kernel para reduzir a sobrecarga"</string>
+
+    <!-- Kernel Dr.xok -->
+    <string name="drxok_battery">Kernel Dr.xok: bateria</string>
+    <string name="drxok_health">Saúde da bateria</string>
+    <string name="drxok_health_capacity">Capacidade real: %1$d mAh de %2$d mAh (%3$d%%)</string>
+    <string name="drxok_health_capacity_only">Capacidade real: %1$d mAh</string>
+    <string name="drxok_health_cycles">Ciclos de carga: %1$d</string>
+    <string name="drxok_charge_limit">Limite de carga</string>
+    <string name="drxok_charge_limit_summary">Para de carregar neste nível; o celular continua funcionando pelo carregador.</string>
+    <string name="drxok_no_limit">Sem limite</string>
+    <string name="drxok_charge_hyst">Voltar a carregar depois de cair</string>
+    <string name="drxok_charge_hyst_summary">Quanto a bateria precisa cair abaixo do limite para carregar de novo.</string>
 </resources>

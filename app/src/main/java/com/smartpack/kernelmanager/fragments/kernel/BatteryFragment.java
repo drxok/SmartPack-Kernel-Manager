@@ -56,6 +56,7 @@ public class BatteryFragment extends RecyclerViewFragment {
 
     @Override
     protected void addItems(List<RecyclerViewItem> items) {
+        drxokInit(items);
         if (mBattery.hasbatterychargelimit() || mBattery.hasChargingEnable() || Battery.hasFastCharge()
                 || Battery.haschargeLevel() || mBattery.hasBlx() || Battery.hasOPOTGSwitch()
                 || Battery.hasThunderCharge()) {
@@ -68,6 +69,91 @@ public class BatteryFragment extends RecyclerViewFragment {
         super.postInit();
 
         addViewPagerFragment(ApplyOnBootFragment.newInstance(this));
+    }
+
+    /*
+     * Kernel Dr.xok: limite de carga do kernel e saúde da bateria
+     */
+    private void drxokInit(List<RecyclerViewItem> items) {
+        CardView card = new CardView(getActivity());
+        card.setTitle(getString(R.string.drxok_battery));
+
+        int full = Battery.getChargeFullMah();
+        int design = mBattery.getDesignMah();
+        int cycles = Battery.getCycleCount();
+        if (full > 0) {
+            StringBuilder sb = new StringBuilder();
+            if (design > 0) {
+                sb.append(getString(R.string.drxok_health_capacity, full, design,
+                        Math.round(full * 100f / design)));
+            } else {
+                sb.append(getString(R.string.drxok_health_capacity_only, full));
+            }
+            if (cycles >= 0) {
+                sb.append("\n").append(getString(R.string.drxok_health_cycles, cycles));
+            }
+            DescriptionView health = new DescriptionView();
+            health.setTitle(getString(R.string.drxok_health));
+            health.setSummary(sb.toString());
+            card.addItem(health);
+        }
+
+        if (Battery.hasDrxokChargeLimit()) {
+            // 50% ... 99% e "sem limite" (100)
+            List<String> limits = new ArrayList<>();
+            for (int i = 50; i <= 99; i++) {
+                limits.add(i + "%");
+            }
+            limits.add(getString(R.string.drxok_no_limit));
+
+            int cur = Battery.getDrxokChargeLimit();
+            if (cur < 50 || cur > 100) cur = 100;
+
+            SeekBarView limit = new SeekBarView();
+            limit.setTitle(getString(R.string.drxok_charge_limit));
+            limit.setSummary(getString(R.string.drxok_charge_limit_summary));
+            limit.setItems(limits);
+            limit.setProgress(cur - 50);
+            limit.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+                @Override
+                public void onStop(SeekBarView seekBarView, int position, String value) {
+                    mBattery.setDrxokChargeLimit(position + 50, getActivity());
+                }
+
+                @Override
+                public void onMove(SeekBarView seekBarView, int position, String value) {
+                }
+            });
+            card.addItem(limit);
+
+            if (Battery.hasDrxokChargeHyst()) {
+                int h = Battery.getDrxokChargeHyst();
+                if (h < 1 || h > 30) h = 5;
+
+                SeekBarView hyst = new SeekBarView();
+                hyst.setTitle(getString(R.string.drxok_charge_hyst));
+                hyst.setSummary(getString(R.string.drxok_charge_hyst_summary));
+                hyst.setUnit("%");
+                hyst.setMin(1);
+                hyst.setMax(30);
+                hyst.setProgress(h - 1);
+                hyst.setOnSeekBarListener(new SeekBarView.OnSeekBarListener() {
+                    @Override
+                    public void onStop(SeekBarView seekBarView, int position, String value) {
+                        mBattery.setDrxokChargeHyst(position + 1, getActivity());
+                    }
+
+                    @Override
+                    public void onMove(SeekBarView seekBarView, int position, String value) {
+                    }
+                });
+                card.addItem(hyst);
+            }
+        }
+
+        if (card.size() > 0) {
+            items.add(card);
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

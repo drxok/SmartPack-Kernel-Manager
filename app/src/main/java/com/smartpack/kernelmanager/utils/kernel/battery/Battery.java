@@ -466,6 +466,57 @@ public class Battery {
                 || hasbatterychargelimit() || hasOPOTGSwitch() || hasChargingEnable();
     }
 
+    /*
+     * Kernel Dr.xok: limite de carga e saúde da bateria (Moto G7 Play / smb5)
+     */
+    private static final String DRXOK_LIMIT = "/sys/module/smb5_lib/parameters/charge_limit";
+    private static final String DRXOK_HYST = "/sys/module/smb5_lib/parameters/charge_limit_hyst";
+    private static final String CHARGE_FULL = POWER_SUPPLY + "/battery/charge_full";
+    private static final String CHARGE_FULL_DESIGN = POWER_SUPPLY + "/battery/charge_full_design";
+    private static final String CYCLE_COUNT = POWER_SUPPLY + "/battery/cycle_count";
+
+    public static boolean hasDrxokChargeLimit() {
+        return Utils.existFile(DRXOK_LIMIT);
+    }
+
+    public static int getDrxokChargeLimit() {
+        return Utils.strToInt(Utils.readFile(DRXOK_LIMIT));
+    }
+
+    public void setDrxokChargeLimit(int value, Context context) {
+        run(Control.write(String.valueOf(value), DRXOK_LIMIT), DRXOK_LIMIT, context);
+    }
+
+    public static boolean hasDrxokChargeHyst() {
+        return Utils.existFile(DRXOK_HYST);
+    }
+
+    public static int getDrxokChargeHyst() {
+        return Utils.strToInt(Utils.readFile(DRXOK_HYST));
+    }
+
+    public void setDrxokChargeHyst(int value, Context context) {
+        run(Control.write(String.valueOf(value), DRXOK_HYST), DRXOK_HYST, context);
+    }
+
+    /** capacidade real em mAh (0 se o kernel não informar) */
+    public static int getChargeFullMah() {
+        return Utils.existFile(CHARGE_FULL) ? Utils.strToInt(Utils.readFile(CHARGE_FULL)) / 1000 : 0;
+    }
+
+    /** capacidade de fábrica em mAh: do kernel ou do perfil de energia do Android */
+    public int getDesignMah() {
+        if (Utils.existFile(CHARGE_FULL_DESIGN)) {
+            int v = Utils.strToInt(Utils.readFile(CHARGE_FULL_DESIGN)) / 1000;
+            if (v > 0) return v;
+        }
+        return mCapacity;
+    }
+
+    public static int getCycleCount() {
+        return Utils.existFile(CYCLE_COUNT) ? Utils.strToInt(Utils.readFile(CYCLE_COUNT)) : -1;
+    }
+
     private void run(String command, String id, Context context) {
         Control.runSetting(command, ApplyOnBootFragment.BATTERY, id, context);
     }
