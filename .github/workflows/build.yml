@@ -29,12 +29,6 @@ jobs:
         id: build
         run: |
           set -o pipefail
-          {
-            echo "=== jitpack sCommon"; curl -s https://jitpack.io/api/builds/com.github.sunilpaulmathew/sCommon | head -c 3000; echo
-            echo "=== jitpack RootFilePicker"; curl -s https://jitpack.io/api/builds/com.github.sunilpaulmathew/RootFilePicker | head -c 2000; echo
-            echo "=== tags sCommon"; git ls-remote --tags https://github.com/sunilpaulmathew/sCommon | tail -15
-            echo "=== tags RootFilePicker"; git ls-remote https://github.com/sunilpaulmathew/RootFilePicker | tail -8
-          } > diag.log 2>&1
           gradle --no-daemon --stacktrace assembleFdroidRelease 2>&1 | tee build.log
         continue-on-error: true
 
@@ -49,7 +43,7 @@ jobs:
             gh release create "$TAG" SmartPack-Drxok.apk build.log --target "${{ github.sha }}" \
               --title "SmartPack Dr.xok $TAG" --notes "OK - commit ${{ github.sha }}" --prerelease
           else
-            { cat diag.log; echo; tail -n 400 build.log; } > build-erro.log
+            grep -n -E "error:|warning: \\[|What went wrong|FAILED|Could not" build.log | head -150 > build-erro.log; echo "-----" >> build-erro.log; tail -n 300 build.log >> build-erro.log
             gh release create "$TAG" build-erro.log --target "${{ github.sha }}" \
               --title "FALHOU $TAG" --notes "ERRO - commit ${{ github.sha }}" --prerelease
             exit 1

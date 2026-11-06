@@ -1,2 +1,7 @@
 include(":app", ":seekbar")
+
+// sCommon (bibliotecas do autor original, incluídas no projeto)
+["adapters", "apkutils", "commonutils", "credits", "crashreporter", "fileutils", "packageutils", "translatorutils"].each {
+    include(":sCommon:$it")
+}
 rootProject.name = "SmartPack-Kernel Manager"

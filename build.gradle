@@ -2,6 +2,7 @@
 
 buildscript {
     ext.materialLibVersion = '1.12.0'
+    ext.annotationLibVersion = '1.8.2'
 
     repositories {
         google()

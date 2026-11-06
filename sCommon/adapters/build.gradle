@@ -1,0 +1,22 @@
+// sCommon (adapters) - copiado de github.com/sunilpaulmathew/sCommon @ 970617f (GPLv3)
+// porque o build antigo no jitpack não existe mais
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'in.sunilpaulmathew.sCommon.Adapters'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 21
+        consumerProguardFiles("proguard-rules.pro")
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation "com.google.android.material:material:${materialLibVersion}"
+}
