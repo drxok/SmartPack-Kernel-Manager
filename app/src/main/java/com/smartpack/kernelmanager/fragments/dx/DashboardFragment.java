@@ -68,7 +68,7 @@ public class DashboardFragment extends BaseFragment {
         int cpuMaxMhz, gpuMaxMhz;
         int bigCur, bigMax, littleCur, littleMax;
         boolean hasLittle;
-        String bigGov;
+        String bigGov, littleGov;
         int gpuCur;
         float tempC = Float.NaN;
         long memTotal, memAvail, swapTotal, swapFree;
@@ -290,6 +290,7 @@ public class DashboardFragment extends BaseFragment {
         if (littleIdx >= 0 && littleIdx != bigIdx) {
             s.hasLittle = true;
             s.littleMax = clusters.get(littleIdx)[0] / 1000;
+            s.littleGov = govs.get(littleIdx);
             s.littleCur = clusters.get(littleIdx)[1] / 1000;
         }
 
@@ -342,7 +343,7 @@ public class DashboardFragment extends BaseFragment {
 
         if (s.hasLittle) {
             mTileLittle.value.setText(s.littleCur > 0 ? String.valueOf(s.littleCur) : "—");
-            mTileLittle.sub.setText(getString(R.string.dx_mhz_max, s.littleMax));
+            mTileLittle.sub.setText(getString(R.string.dx_mhz_gov, s.littleGov == null ? "" : prettyGov(s.littleGov)));
             mTileLittle.bar.setProgress(s.littleMax > 0 ? s.littleCur * 100 / s.littleMax : 0);
         } else {
             mTileLittle.value.setText("—");
