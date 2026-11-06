@@ -2,12 +2,16 @@ apply plugin: 'com.android.library'
 
 android {
     namespace 'org.adw.library.widgets.discreteseekbar'
-    compileSdk 33
-    buildToolsVersion "30.0.3"
+    compileSdk 35
 
     defaultConfig {
-        minSdkVersion 21
+        minSdk 21
         consumerProguardFiles("proguard-rules.pro")
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 

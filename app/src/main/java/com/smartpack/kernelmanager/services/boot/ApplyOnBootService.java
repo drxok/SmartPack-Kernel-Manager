@@ -82,7 +82,12 @@ public class ApplyOnBootService extends Service {
                     this, CHANNEL_ID);
             builder.setContentTitle(getString(R.string.apply_on_boot))
                     .setSmallIcon(R.drawable.ic_on_boot_notification);
-            startForeground(NotificationId.APPLY_ON_BOOT, builder.build());
+            if (Build.VERSION.SDK_INT >= 34) {
+                startForeground(NotificationId.APPLY_ON_BOOT, builder.build(),
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            } else {
+                startForeground(NotificationId.APPLY_ON_BOOT, builder.build());
+            }
         }
     }
 
