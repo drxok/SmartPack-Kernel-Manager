@@ -1280,4 +1280,15 @@
     <string name="dx_sched_title">Scheduler</string>
     <string name="dx_fast_migrate">Big cores sooner</string>
     <string name="dx_fast_migrate_summary" formatted="false">The app on screen moves to the 2 GHz cores earlier (at 80% instead of 95% of a small core). Smoother UI, slightly more battery with the screen on.</string>
+    <string name="dx_mem_title">Kernel Dr.xok</string>
+    <string name="dx_bg_reclaim">Compact apps when the screen turns off</string>
+    <string name="dx_bg_reclaim_summary">30 s after the screen turns off, background apps are compressed into ZRAM, leaving free RAM for when you come back.</string>
+    <string name="dx_bg_reclaim_last">Last time: %1$d MB</string>
+    <string name="dx_writeback">ZRAM writeback to storage</string>
+    <string name="dx_writeback_summary">ZRAM pages idle for more than 1 hour go to a 512 MB file in internal storage (up to 256 MB written per day).</string>
+    <string name="dx_writeback_active">Active · %1$d MB in storage now</string>
+    <string name="dx_writeback_inactive">Inactive (needs Magisk and a reboot)</string>
+    <string name="dx_after_reboot">Takes effect after reboot.</string>
+    <string name="dx_freezer">Freeze cached apps</string>
+    <string name="dx_freezer_summary">Android 12 freezes apps left in the background: they use no CPU until you open them again.</string>
 </resources>

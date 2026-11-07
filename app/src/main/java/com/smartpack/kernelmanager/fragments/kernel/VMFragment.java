@@ -53,6 +53,7 @@ public class VMFragment extends RecyclerViewFragment {
     @Override
     protected void addItems(List<RecyclerViewItem> items) {
         VMInit(items);
+        dxMemoryInit(items);
         if (ZRAM.supported()) {
             zramInit(items);
         }
@@ -133,6 +134,54 @@ public class VMFragment extends RecyclerViewFragment {
         if (vmCard.size() > 0) {
             items.add(vmCard);
         }
+    }
+
+    /** Kernel Dr.xok v19: compactação, writeback e congelador */
+    private void dxMemoryInit(List<RecyclerViewItem> items) {
+        CardView card = new CardView(getActivity());
+        card.setTitle(getString(R.string.dx_mem_title));
+
+        if (DxKernel.hasBgReclaim()) {
+            SwitchView bg = new SwitchView();
+            bg.setTitle(getString(R.string.dx_bg_reclaim));
+            int last = DxKernel.bgReclaimLastMb();
+            bg.setSummary(getString(R.string.dx_bg_reclaim_summary)
+                    + (last > 0 ? "\n" + getString(R.string.dx_bg_reclaim_last, last) : ""));
+            bg.setChecked(DxKernel.isBgReclaim());
+            bg.addOnSwitchListener((v, on) -> DxKernel.setBgReclaim(on, getActivity()));
+            card.addItem(bg);
+        }
+
+        if (DxKernel.hasWriteback()) {
+            SwitchView wb = new SwitchView();
+            wb.setTitle(getString(R.string.dx_writeback));
+            String state = DxKernel.isWritebackActive()
+                    ? getString(R.string.dx_writeback_active, DxKernel.writebackMb())
+                    : getString(R.string.dx_writeback_inactive);
+            wb.setSummary(getString(R.string.dx_writeback_summary) + "\n" + state);
+            wb.setChecked(DxKernel.isWritebackWanted());
+            wb.addOnSwitchListener((v, on) -> {
+                DxKernel.setWritebackWanted(on);
+                v.setSummary(getString(R.string.dx_writeback_summary) + "\n"
+                        + getString(R.string.dx_after_reboot));
+            });
+            card.addItem(wb);
+        }
+
+        if (DxKernel.hasFreezer()) {
+            SwitchView fr = new SwitchView();
+            fr.setTitle(getString(R.string.dx_freezer));
+            fr.setSummary(getString(R.string.dx_freezer_summary));
+            fr.setChecked(DxKernel.isFreezerEnabled());
+            fr.addOnSwitchListener((v, on) -> {
+                DxKernel.setFreezerEnabled(on);
+                v.setSummary(getString(R.string.dx_freezer_summary) + "\n"
+                        + getString(R.string.dx_after_reboot));
+            });
+            card.addItem(fr);
+        }
+
+        if (card.size() > 0) items.add(card);
     }
 
     /** Kernel Dr.xok: quanto o dedup já economizou */

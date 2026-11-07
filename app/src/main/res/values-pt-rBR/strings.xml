@@ -1281,4 +1281,15 @@
     <string name="dx_sched_title">Agendador</string>
     <string name="dx_fast_migrate">Núcleos fortes mais cedo</string>
     <string name="dx_fast_migrate_summary" formatted="false">O app em tela passa para os núcleos de 2 GHz mais cedo (com 80% de um núcleo pequeno em vez de 95%). Interface mais lisa, um pouco mais de bateria com a tela ligada.</string>
+    <string name="dx_mem_title">Kernel Dr.xok</string>
+    <string name="dx_bg_reclaim">Compactar apps ao apagar a tela</string>
+    <string name="dx_bg_reclaim_summary">30 s depois de apagar a tela, os apps em segundo plano vão comprimidos para a ZRAM, sobrando RAM livre para quando você voltar.</string>
+    <string name="dx_bg_reclaim_last">Última vez: %1$d MB</string>
+    <string name="dx_writeback">ZRAM na memória interna</string>
+    <string name="dx_writeback_summary">Páginas da ZRAM paradas há mais de 1 hora vão para um arquivo de 512 MB na memória interna (até 256 MB gravados por dia).</string>
+    <string name="dx_writeback_active">Ativo · %1$d MB na memória interna agora</string>
+    <string name="dx_writeback_inactive">Inativo (precisa do Magisk e de reiniciar)</string>
+    <string name="dx_after_reboot">Vale depois de reiniciar.</string>
+    <string name="dx_freezer">Congelar apps em cache</string>
+    <string name="dx_freezer_summary">O Android 12 congela os apps deixados em segundo plano: eles não usam CPU até você abrir de novo.</string>
 </resources>
