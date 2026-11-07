@@ -1291,4 +1291,8 @@
     <string name="dx_after_reboot">Takes effect after reboot.</string>
     <string name="dx_freezer">Freeze cached apps</string>
     <string name="dx_freezer_summary">Android 12 freezes apps left in the background: they use no CPU until you open them again.</string>
+    <string name="dx_zram_algo">ZRAM compressor</string>
+    <string name="dx_zram_algo_summary">zstd compresses more (more apps fit); lz4kd (Huawei) is faster. In use now: %1$s</string>
+    <string name="dx_memcg">Per-app memory: active</string>
+    <string name="dx_memcg_summary">Background apps go to ZRAM first; the app you are using is protected.</string>
 </resources>

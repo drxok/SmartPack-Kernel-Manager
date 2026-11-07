@@ -146,4 +146,30 @@ public class DxKernel {
         com.smartpack.kernelmanager.utils.root.RootUtils.runCommand(
                 "settings put global cached_apps_freezer " + (on ? "enabled" : "disabled"));
     }
+
+    // --- v20: compressor da ZRAM (aplicado pelo script de boot)
+    public static final String ALGO_FILE = "/data/vendor/dx_zram/algo";
+    public static final String COMP_ALGO = "/sys/block/zram0/comp_algorithm";
+
+    public static boolean hasLz4kd() {
+        return DxInfo.read(COMP_ALGO).contains("lz4kd");
+    }
+
+    /** compressor em uso agora */
+    public static String currentAlgo() {
+        String b = DxInfo.bracketed(DxInfo.read(COMP_ALGO));
+        return b == null ? "" : b;
+    }
+
+    public static void setWantedAlgo(String algo) {
+        com.smartpack.kernelmanager.utils.root.RootUtils.runCommand(
+                "mkdir -p /data/vendor/dx_zram && echo " + algo + " > " + ALGO_FILE);
+    }
+
+    // --- v20: memória por app
+    public static boolean isPerAppMemcg() {
+        return DxInfo.exists("/dev/memcg/apps") && "true".equals(
+                com.smartpack.kernelmanager.utils.root.RootUtils.runAndGetOutput(
+                        "getprop ro.config.per_app_memcg").trim());
+    }
 }

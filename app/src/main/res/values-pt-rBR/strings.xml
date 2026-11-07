@@ -1292,4 +1292,8 @@
     <string name="dx_after_reboot">Vale depois de reiniciar.</string>
     <string name="dx_freezer">Congelar apps em cache</string>
     <string name="dx_freezer_summary">O Android 12 congela os apps deixados em segundo plano: eles não usam CPU até você abrir de novo.</string>
+    <string name="dx_zram_algo">Compressor da ZRAM</string>
+    <string name="dx_zram_algo_summary">zstd comprime mais (cabem mais apps); lz4kd (Huawei) é mais rápido. Em uso agora: %1$s</string>
+    <string name="dx_memcg">Memória por app: ativa</string>
+    <string name="dx_memcg_summary">Apps em segundo plano vão primeiro para a ZRAM; o app que você está usando fica protegido.</string>
 </resources>

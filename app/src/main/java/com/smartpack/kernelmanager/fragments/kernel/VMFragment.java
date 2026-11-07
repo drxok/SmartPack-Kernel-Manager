@@ -23,6 +23,8 @@ import android.text.InputType;
 
 import com.smartpack.kernelmanager.R;
 import com.smartpack.kernelmanager.utils.DxKernel;
+import com.smartpack.kernelmanager.views.recyclerview.DescriptionView;
+import com.smartpack.kernelmanager.views.recyclerview.DxChipsView;
 import com.smartpack.kernelmanager.fragments.ApplyOnBootFragment;
 import com.smartpack.kernelmanager.fragments.RecyclerViewFragment;
 import com.smartpack.kernelmanager.utils.Prefs;
@@ -179,6 +181,30 @@ public class VMFragment extends RecyclerViewFragment {
                         + getString(R.string.dx_after_reboot));
             });
             card.addItem(fr);
+        }
+
+        if (DxKernel.hasLz4kd()) {
+            String[] algos = {"zstd", "lz4kd"};
+            String cur = DxKernel.currentAlgo();
+            DxChipsView algo = new DxChipsView();
+            algo.setTitle(getString(R.string.dx_zram_algo));
+            algo.setSummary(getString(R.string.dx_zram_algo_summary, cur));
+            algo.setAccent(R.color.dx_butter, R.color.dx_butter_ink);
+            algo.setItems(java.util.Arrays.asList(algos));
+            algo.setItem("lz4kd".equals(cur) ? 1 : 0);
+            algo.setOnItemSelected((view, position, item) -> {
+                DxKernel.setWantedAlgo(algos[position]);
+                view.setSummary(getString(R.string.dx_zram_algo_summary, cur) + "\n"
+                        + getString(R.string.dx_after_reboot));
+            });
+            card.addItem(algo);
+        }
+
+        if (DxKernel.isPerAppMemcg()) {
+            DescriptionView memcg = new DescriptionView();
+            memcg.setTitle(getString(R.string.dx_memcg));
+            memcg.setSummary(getString(R.string.dx_memcg_summary));
+            card.addItem(memcg);
         }
 
         if (card.size() > 0) items.add(card);
