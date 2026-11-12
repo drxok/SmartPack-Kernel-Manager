@@ -1286,7 +1286,7 @@
     <string name="dx_bg_reclaim_summary">30 s depois de apagar a tela, os apps em segundo plano vão comprimidos para a ZRAM, sobrando RAM livre para quando você voltar.</string>
     <string name="dx_bg_reclaim_last">Última vez: %1$d MB</string>
     <string name="dx_writeback">ZRAM na memória interna</string>
-    <string name="dx_writeback_summary">Páginas da ZRAM paradas há mais de 1 hora vão para um arquivo de 512 MB na memória interna (até 256 MB gravados por dia).</string>
+    <string name="dx_writeback_summary">Páginas da ZRAM paradas há mais de 4 horas vão para um arquivo de 512 MB na memória interna (até 256 MB gravados por dia).</string>
     <string name="dx_writeback_active">Ativo · %1$d MB na memória interna agora</string>
     <string name="dx_writeback_inactive">Inativo (precisa do Magisk e de reiniciar)</string>
     <string name="dx_after_reboot">Vale depois de reiniciar.</string>
@@ -1296,4 +1296,8 @@
     <string name="dx_zram_algo_summary">zstd comprime mais (cabem mais apps); lz4kd (Huawei) é mais rápido. Em uso agora: %1$s</string>
     <string name="dx_memcg">Memória por app: ativa</string>
     <string name="dx_memcg_summary">Apps em segundo plano vão primeiro para a ZRAM; o app que você está usando fica protegido.</string>
+    <string name="dx_mglru">MGLRU (multi-gen LRU)</string>
+    <string name="dx_mglru_summary">Jeito novo de escolher o que sai da RAM: apps abrem mais rápido. Se a tela de bloqueio demorar, proteja a interface do sistema abaixo.</string>
+    <string name="dx_protected">Apps protegidos da ZRAM</string>
+    <string name="dx_protected_summary">%1$d apps nunca vão para a ZRAM (abrem na hora). Toque para escolher. Proteja poucos: eles ocupam RAM de verdade.</string>
 </resources>

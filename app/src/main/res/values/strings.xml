@@ -1285,7 +1285,7 @@
     <string name="dx_bg_reclaim_summary">30 s after the screen turns off, background apps are compressed into ZRAM, leaving free RAM for when you come back.</string>
     <string name="dx_bg_reclaim_last">Last time: %1$d MB</string>
     <string name="dx_writeback">ZRAM writeback to storage</string>
-    <string name="dx_writeback_summary">ZRAM pages idle for more than 1 hour go to a 512 MB file in internal storage (up to 256 MB written per day).</string>
+    <string name="dx_writeback_summary">ZRAM pages idle for more than 4 hours go to a 512 MB file in internal storage (up to 256 MB written per day).</string>
     <string name="dx_writeback_active">Active · %1$d MB in storage now</string>
     <string name="dx_writeback_inactive">Inactive (needs Magisk and a reboot)</string>
     <string name="dx_after_reboot">Takes effect after reboot.</string>
@@ -1295,4 +1295,8 @@
     <string name="dx_zram_algo_summary">zstd compresses more (more apps fit); lz4kd (Huawei) is faster. In use now: %1$s</string>
     <string name="dx_memcg">Per-app memory: active</string>
     <string name="dx_memcg_summary">Background apps go to ZRAM first; the app you are using is protected.</string>
+    <string name="dx_mglru">MGLRU (multi-gen LRU)</string>
+    <string name="dx_mglru_summary">Newer way to pick what leaves RAM: apps open faster. If the lock screen is slow, protect System UI below.</string>
+    <string name="dx_protected">Apps protected from ZRAM</string>
+    <string name="dx_protected_summary">%1$d apps never go to ZRAM (open instantly). Tap to choose. Keep it short: they use real RAM.</string>
 </resources>

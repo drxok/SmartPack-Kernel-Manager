@@ -172,4 +172,61 @@ public class DxKernel {
                 com.smartpack.kernelmanager.utils.root.RootUtils.runAndGetOutput(
                         "getprop ro.config.per_app_memcg").trim());
     }
+
+    // --- v21: MGLRU (multi-gen LRU)
+    public static final String LRU_GEN = "/sys/kernel/mm/lru_gen/enabled";
+
+    public static boolean hasMglru() {
+        return DxInfo.exists(LRU_GEN);
+    }
+
+    public static boolean isMglru() {
+        String v = DxInfo.read(LRU_GEN).trim();
+        return !v.isEmpty() && !"0x0000".equals(v) && !"0".equals(v);
+    }
+
+    public static void setMglru(boolean on, Context context) {
+        Control.runSetting(Control.write(on ? "y" : "n", LRU_GEN),
+                ApplyOnBootFragment.VM, LRU_GEN, context);
+    }
+
+    // --- v21: apps protegidos (memória fora da ZRAM)
+    public static final String PROTECTED_UIDS = "/sys/module/memcontrol/parameters/protected_uids";
+    public static final String PROTECTED_LIST = "/data/vendor/dx_zram/protegidos";
+
+    public static boolean hasProtection() {
+        return DxInfo.exists(PROTECTED_UIDS);
+    }
+
+    /** pacotes protegidos (lista salva; o script de boot cria a padrão) */
+    public static java.util.List<String> protectedPackages() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        String v = com.smartpack.kernelmanager.utils.root.RootUtils
+                .runAndGetOutput("cat " + PROTECTED_LIST + " 2>/dev/null");
+        if (v == null) return out;
+        for (String l : v.split("\n")) {
+            l = l.trim();
+            if (!l.isEmpty() && !out.contains(l)) out.add(l);
+        }
+        return out;
+    }
+
+    /** salva a lista e aplica na hora (sem reiniciar) */
+    public static void setProtectedPackages(java.util.List<String> pkgs, Context context) {
+        StringBuilder list = new StringBuilder();
+        StringBuilder uids = new StringBuilder();
+        android.content.pm.PackageManager pm = context.getPackageManager();
+        for (String p : pkgs) {
+            list.append(p).append("\n");
+            try {
+                int uid = pm.getApplicationInfo(p, 0).uid;
+                if (uids.length() > 0) uids.append(',');
+                uids.append(uid);
+            } catch (Exception ignored) {
+            }
+        }
+        com.smartpack.kernelmanager.utils.root.RootUtils.runCommand(
+                "mkdir -p /data/vendor/dx_zram && printf '" + list + "' > " + PROTECTED_LIST
+                        + " && echo '" + uids + "' > " + PROTECTED_UIDS);
+    }
 }

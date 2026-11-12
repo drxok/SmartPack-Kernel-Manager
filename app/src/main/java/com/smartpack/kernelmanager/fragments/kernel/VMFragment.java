@@ -200,6 +200,24 @@ public class VMFragment extends RecyclerViewFragment {
             card.addItem(algo);
         }
 
+        if (DxKernel.hasMglru()) {
+            SwitchView mglru = new SwitchView();
+            mglru.setTitle(getString(R.string.dx_mglru));
+            mglru.setSummary(getString(R.string.dx_mglru_summary));
+            mglru.setChecked(DxKernel.isMglru());
+            mglru.addOnSwitchListener((v, on) -> DxKernel.setMglru(on, getActivity()));
+            card.addItem(mglru);
+        }
+
+        if (DxKernel.hasProtection()) {
+            DescriptionView prot = new DescriptionView();
+            prot.setTitle(getString(R.string.dx_protected));
+            prot.setSummary(getString(R.string.dx_protected_summary,
+                    DxKernel.protectedPackages().size()));
+            prot.setOnItemClickListener(item -> showProtectedDialog(prot));
+            card.addItem(prot);
+        }
+
         if (DxKernel.isPerAppMemcg()) {
             DescriptionView memcg = new DescriptionView();
             memcg.setTitle(getString(R.string.dx_memcg));
@@ -208,6 +226,39 @@ public class VMFragment extends RecyclerViewFragment {
         }
 
         if (card.size() > 0) items.add(card);
+    }
+
+    /** Kernel Dr.xok: lista de apps protegidos da ZRAM */
+    private void showProtectedDialog(DescriptionView prot) {
+        android.content.pm.PackageManager pm = requireActivity().getPackageManager();
+        android.content.Intent main = new android.content.Intent(android.content.Intent.ACTION_MAIN)
+                .addCategory(android.content.Intent.CATEGORY_LAUNCHER);
+        java.util.TreeMap<String, String> apps = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (android.content.pm.ResolveInfo ri : pm.queryIntentActivities(main, 0)) {
+            String pkg = ri.activityInfo.packageName;
+            apps.put(ri.loadLabel(pm) + "  (" + pkg + ")", pkg);
+        }
+        java.util.List<String> cur = DxKernel.protectedPackages();
+        // apps do sistema protegidos que não aparecem na gaveta (ex.: interface do sistema)
+        for (String p : cur) {
+            if (!apps.containsValue(p)) apps.put(p, p);
+        }
+        String[] labels = apps.keySet().toArray(new String[0]);
+        String[] pkgs = apps.values().toArray(new String[0]);
+        boolean[] checked = new boolean[pkgs.length];
+        for (int i = 0; i < pkgs.length; i++) checked[i] = cur.contains(pkgs[i]);
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.dx_protected)
+                .setMultiChoiceItems(labels, checked, (d, which, isChecked) -> checked[which] = isChecked)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.apply, (d, w) -> {
+                    java.util.List<String> sel = new java.util.ArrayList<>();
+                    for (int i = 0; i < pkgs.length; i++) if (checked[i]) sel.add(pkgs[i]);
+                    DxKernel.setProtectedPackages(sel, requireActivity());
+                    prot.setSummary(getString(R.string.dx_protected_summary, sel.size()));
+                })
+                .show();
     }
 
     /** Kernel Dr.xok: quanto o dedup já economizou */
