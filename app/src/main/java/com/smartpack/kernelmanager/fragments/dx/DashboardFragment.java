@@ -26,6 +26,7 @@ import com.smartpack.kernelmanager.fragments.kernel.CPUFragment;
 import com.smartpack.kernelmanager.utils.DxMotion;
 import com.google.android.material.textview.MaterialTextView;
 import com.smartpack.kernelmanager.R;
+import com.smartpack.kernelmanager.utils.kernel.cpu.CPUFreq;
 import com.smartpack.kernelmanager.activities.NavigationActivity;
 import com.smartpack.kernelmanager.fragments.BaseFragment;
 import com.smartpack.kernelmanager.fragments.other.SettingsFragment;
@@ -55,16 +56,21 @@ public class DashboardFragment extends BaseFragment {
     private final Set<String> mNeedsRoot = new HashSet<>();
     private boolean mRunning;
     private boolean mStaticLoaded;
-    private volatile List<String> mPolicies;
-    private int mPolicyScans;
-    private final java.util.Map<String, Integer> mPolicyMax = new java.util.HashMap<>();
-
-    private static int policyIndex(String path) {
-        try {
-            return Integer.parseInt(path.substring(path.lastIndexOf("policy") + 6));
-        } catch (Exception e) {
-            return 0;
+    /** {frequência máxima, frequência atual (maior entre os núcleos ligados), núcleo de referência} */
+    private static int[] cluster(CPUFreq cpuFreq, java.util.List<Integer> cpus) {
+        int max = 0, cur = 0, ref = cpus.isEmpty() ? 0 : cpus.get(0);
+        boolean refOnline = false;
+        for (int c : cpus) {
+            java.util.List<Integer> freqs = cpuFreq.getFreqs(c);
+            if (freqs != null) for (int f : freqs) max = Math.max(max, f);
+            int now = cpuFreq.getCurFreq(c);
+            if (now > 0 && !refOnline) {
+                ref = c;
+                refOnline = true;
+            }
+            cur = Math.max(cur, now);
         }
+        return new int[]{max, cur, ref};
     }
 
     private MaterialTextView mGreeting, mKernelName, mKernelVersion, mZramAlgo, mRamText, mZramText;
@@ -292,54 +298,27 @@ public class DashboardFragment extends BaseFragment {
             s.gpuMaxMhz = gpuMax / 1000000;
         }
 
-        // CPU: uma "policy" por grupo de núcleos. Procura de novo enquanto só achou uma,
-        // porque o grupo dos núcleos grandes pode estar desligado na primeira leitura.
-        if (mPolicies == null || (mPolicies.size() < 2 && mPolicyScans < 10)) {
-            mPolicyScans++;
-            java.util.TreeSet<String> found = new java.util.TreeSet<>(
-                    (x, y) -> Integer.compare(policyIndex(x), policyIndex(y)));
-            for (int n = 0; n < 16; n++) {
-                String p = "/sys/devices/system/cpu/cpufreq/policy" + n;
-                if (new File(p).exists()) found.add(p);
-            }
-            String ls = RootUtils.runAndGetOutput("ls -d /sys/devices/system/cpu/cpufreq/policy* 2>/dev/null");
-            if (ls != null) {
-                for (String p : ls.split("\\s+")) if (p.trim().startsWith("/")) found.add(p.trim());
-            }
-            mPolicies = new ArrayList<>(found);
-        }
-        List<int[]> clusters = new ArrayList<>(); // {max, cur, índice}
-        List<String> govs = new ArrayList<>();
-        for (String p : mPolicies) {
-            int max = readInt(p + "/cpuinfo_max_freq");
-            if (max > 0) mPolicyMax.put(p, max);
-            else max = mPolicyMax.containsKey(p) ? mPolicyMax.get(p) : 0;
-            // grupo sem núcleo ligado: frequência atual 0 (aparece como desligado)
-            String online = readFile(p + "/affected_cpus").trim();
-            int cur = online.isEmpty() ? 0 : readInt(p + "/scaling_cur_freq");
-            clusters.add(new int[]{max, cur, policyIndex(p)});
-            govs.add(readFile(p + "/scaling_governor"));
-        }
-        // grandes = maior frequência máxima; empate: o grupo de número maior (policy4 no SDM632)
-        int bigIdx = -1, littleIdx = -1;
-        for (int i = 0; i < clusters.size(); i++) {
-            int[] c = clusters.get(i);
-            if (bigIdx < 0 || c[0] > clusters.get(bigIdx)[0]
-                    || (c[0] == clusters.get(bigIdx)[0] && c[2] > clusters.get(bigIdx)[2])) bigIdx = i;
-            if (littleIdx < 0 || c[0] < clusters.get(littleIdx)[0]
-                    || (c[0] == clusters.get(littleIdx)[0] && c[2] < clusters.get(littleIdx)[2])) littleIdx = i;
-        }
-        if (bigIdx >= 0) {
-            s.bigMax = clusters.get(bigIdx)[0] / 1000;
-            s.bigCur = clusters.get(bigIdx)[1] / 1000;
-            s.bigGov = govs.get(bigIdx);
+        // CPU: mesma leitura da tela de CPU (que mostra os 8 núcleos certo)
+        CPUFreq cpuFreq = CPUFreq.getInstance();
+        if (cpuFreq.isBigLITTLE()) {
+            int[] big = cluster(cpuFreq, cpuFreq.getBigCpuRange());
+            int[] little = cluster(cpuFreq, cpuFreq.getLITTLECpuRange());
+            s.bigMax = big[0] / 1000;
+            s.bigCur = big[1] / 1000;
+            s.bigGov = cpuFreq.getGovernor(big[2], false);
             s.cpuMaxMhz = s.bigMax;
-        }
-        if (littleIdx >= 0 && littleIdx != bigIdx) {
             s.hasLittle = true;
-            s.littleMax = clusters.get(littleIdx)[0] / 1000;
-            s.littleGov = govs.get(littleIdx);
-            s.littleCur = clusters.get(littleIdx)[1] / 1000;
+            s.littleMax = little[0] / 1000;
+            s.littleCur = little[1] / 1000;
+            s.littleGov = cpuFreq.getGovernor(little[2], false);
+        } else {
+            java.util.List<Integer> all = new ArrayList<>();
+            for (int i = 0; i < cpuFreq.getCpuCount(); i++) all.add(i);
+            int[] c = cluster(cpuFreq, all);
+            s.bigMax = c[0] / 1000;
+            s.bigCur = c[1] / 1000;
+            s.bigGov = cpuFreq.getGovernor(c[2], false);
+            s.cpuMaxMhz = s.bigMax;
         }
 
         int gpu = readInt("/sys/class/kgsl/kgsl-3d0/gpuclk");
