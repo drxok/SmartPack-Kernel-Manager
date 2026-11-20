@@ -1211,6 +1211,7 @@
     <string name="dx_hello">Hello, %1$s</string>
     <string name="dx_cpu_big">Big cores</string>
     <string name="dx_cpu_little">Little cores</string>
+    <string name="dx_cpu_off">Cores offline right now</string>
     <string name="dx_temperature">Temperature</string>
     <string name="dx_mhz_gov">MHz · %1$s</string>
     <string name="dx_mhz_max">MHz · max %1$d</string>
@@ -1293,6 +1294,7 @@
     <string name="dx_freezer_summary">Android 12 freezes apps left in the background: they use no CPU until you open them again.</string>
     <string name="dx_zram_algo">ZRAM compressor</string>
     <string name="dx_zram_algo_summary">zstd compresses more (more apps fit); lz4kd (Huawei) is faster. In use now: %1$s</string>
+    <string name="dx_zram_algo_summary_lz4k">lz4kd compresses a bit more and is the default; lz4k is a bit faster. The switch applies right away by emptying the ZRAM (may take a few seconds). In use now: %1$s</string>
     <string name="dx_memcg">Per-app memory: active</string>
     <string name="dx_memcg_summary">Background apps go to ZRAM first; the app you are using is protected.</string>
     <string name="dx_mglru">MGLRU (multi-gen LRU)</string>

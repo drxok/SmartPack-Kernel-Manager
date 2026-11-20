@@ -1212,6 +1212,7 @@
     <string name="dx_hello">Olá, %1$s</string>
     <string name="dx_cpu_big">CPU grandes</string>
     <string name="dx_cpu_little">CPU pequenos</string>
+    <string name="dx_cpu_off">Núcleos desligados agora</string>
     <string name="dx_temperature">Temperatura</string>
     <string name="dx_mhz_gov">MHz · %1$s</string>
     <string name="dx_mhz_max">MHz · máx. %1$d</string>
@@ -1294,6 +1295,7 @@
     <string name="dx_freezer_summary">O Android 12 congela os apps deixados em segundo plano: eles não usam CPU até você abrir de novo.</string>
     <string name="dx_zram_algo">Compressor da ZRAM</string>
     <string name="dx_zram_algo_summary">zstd comprime mais (cabem mais apps); lz4kd (Huawei) é mais rápido. Em uso agora: %1$s</string>
+    <string name="dx_zram_algo_summary_lz4k">lz4kd comprime um pouco mais e é o padrão; lz4k é um pouco mais rápido. A troca vale na hora e é feita esvaziando a ZRAM (pode levar alguns segundos). Em uso agora: %1$s</string>
     <string name="dx_memcg">Memória por app: ativa</string>
     <string name="dx_memcg_summary">Apps em segundo plano vão primeiro para a ZRAM; o app que você está usando fica protegido.</string>
     <string name="dx_mglru">MGLRU (multi-gen LRU)</string>

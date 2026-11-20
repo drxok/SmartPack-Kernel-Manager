@@ -184,18 +184,26 @@ public class VMFragment extends RecyclerViewFragment {
         }
 
         if (DxKernel.hasLz4kd()) {
-            String[] algos = {"zstd", "lz4kd"};
+            java.util.List<String> algos = DxKernel.dxAlgos();
             String cur = DxKernel.currentAlgo();
             DxChipsView algo = new DxChipsView();
             algo.setTitle(getString(R.string.dx_zram_algo));
-            algo.setSummary(getString(R.string.dx_zram_algo_summary, cur));
+            algo.setSummary(getString(algos.contains("zstd") ? R.string.dx_zram_algo_summary
+                    : R.string.dx_zram_algo_summary_lz4k, cur));
             algo.setAccent(R.color.dx_butter, R.color.dx_butter_ink);
-            algo.setItems(java.util.Arrays.asList(algos));
-            algo.setItem("lz4kd".equals(cur) ? 1 : 0);
+            algo.setItems(algos);
+            algo.setItem(Math.max(0, algos.indexOf(cur)));
             algo.setOnItemSelected((view, position, item) -> {
-                DxKernel.setWantedAlgo(algos[position]);
-                view.setSummary(getString(R.string.dx_zram_algo_summary, cur) + "\n"
-                        + getString(R.string.dx_after_reboot));
+                if (algos.contains("zstd")) {
+                    // kernel antigo: aplicado pelo script de boot
+                    DxKernel.setWantedAlgo(algos.get(position));
+                    view.setSummary(getString(R.string.dx_zram_algo_summary, cur) + "\n"
+                            + getString(R.string.dx_after_reboot));
+                } else {
+                    DxKernel.switchAlgo(algos.get(position), getActivity());
+                    getHandler().postDelayed(() -> view.setSummary(getString(
+                            R.string.dx_zram_algo_summary_lz4k, DxKernel.currentAlgo())), 800);
+                }
             });
             card.addItem(algo);
         }

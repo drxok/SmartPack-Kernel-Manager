@@ -99,7 +99,9 @@ public class DxKernel {
     public static final String WB_OFF_FLAG = "/data/vendor/dx_zram/desligado";
 
     public static boolean hasWriteback() {
-        return DxInfo.exists(BACKING_DEV);
+        // o writeback depende do script de boot do kernel Dr.xok v19-v21;
+        // sem ele o arquivo existe mas nunca liga, então só mostra se estiver ativo
+        return DxInfo.exists(BACKING_DEV) && isWritebackActive();
     }
 
     /** ativo agora (tem arquivo de apoio ligado) */
@@ -147,12 +149,22 @@ public class DxKernel {
                 "settings put global cached_apps_freezer " + (on ? "enabled" : "disabled"));
     }
 
-    // --- v20: compressor da ZRAM (aplicado pelo script de boot)
+    // --- v20/v22: compressor da ZRAM
     public static final String ALGO_FILE = "/data/vendor/dx_zram/algo";
     public static final String COMP_ALGO = "/sys/block/zram0/comp_algorithm";
+    /** compressores do kernel Dr.xok, na ordem em que aparecem no app */
+    private static final String[] DX_ALGOS = {"lz4k", "lz4kd", "zstd"};
+
+    /** compressores Dr.xok que este kernel realmente tem */
+    public static java.util.List<String> dxAlgos() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        String all = " " + DxInfo.read(COMP_ALGO).replace("[", " ").replace("]", " ") + " ";
+        for (String a : DX_ALGOS) if (all.contains(" " + a + " ")) out.add(a);
+        return out;
+    }
 
     public static boolean hasLz4kd() {
-        return DxInfo.read(COMP_ALGO).contains("lz4kd");
+        return dxAlgos().size() >= 2;
     }
 
     /** compressor em uso agora */
@@ -161,9 +173,23 @@ public class DxKernel {
         return b == null ? "" : b;
     }
 
+    /** kernel v22+: o próprio kernel já liga o lz4kd no boot; troca na hora (como o cartão Z-RAM) */
+    public static void switchAlgo(String algo, Context context) {
+        int size = com.smartpack.kernelmanager.utils.kernel.vm.ZRAM.getDisksize();
+        com.smartpack.kernelmanager.utils.kernel.vm.ZRAM.setDisksize(0, context);
+        com.smartpack.kernelmanager.utils.kernel.vm.ZRAM.setZRAMAlgo(algo, context);
+        com.smartpack.kernelmanager.utils.kernel.vm.ZRAM.setDisksize(size, context);
+    }
+
+    /** kernel antigo (v20/v21): o compressor era aplicado pelo script de boot */
     public static void setWantedAlgo(String algo) {
         com.smartpack.kernelmanager.utils.root.RootUtils.runCommand(
                 "mkdir -p /data/vendor/dx_zram && echo " + algo + " > " + ALGO_FILE);
+    }
+
+    /** kernel Dr.xok: aparece no /proc/version como "(Dr.xok@...)" ou no nome da versão */
+    public static boolean isDrxokKernel() {
+        return DxInfo.read("/proc/version").contains("Dr.xok");
     }
 
     // --- v20: memória por app

@@ -56,6 +56,16 @@ public class DashboardFragment extends BaseFragment {
     private boolean mRunning;
     private boolean mStaticLoaded;
     private volatile List<String> mPolicies;
+    private int mPolicyScans;
+    private final java.util.Map<String, Integer> mPolicyMax = new java.util.HashMap<>();
+
+    private static int policyIndex(String path) {
+        try {
+            return Integer.parseInt(path.substring(path.lastIndexOf("policy") + 6));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 
     private MaterialTextView mGreeting, mKernelName, mKernelVersion, mZramAlgo, mRamText, mZramText;
     private ChipGroup mKernelChips;
@@ -266,7 +276,11 @@ public class DashboardFragment extends BaseFragment {
             int dash = release.indexOf('-');
             String base = dash > 0 ? release.substring(0, dash) : release;
             String suffix = dash > 0 ? release.substring(dash + 1).replace("+", "") : "";
-            s.kernelName = suffix.isEmpty() || suffix.equals("perf") ? "Kernel" : "Kernel " + suffix;
+            if (version.contains("Dr.xok")) {
+                s.kernelName = "Kernel Dr.xok";
+            } else {
+                s.kernelName = suffix.isEmpty() || suffix.equals("perf") ? "Kernel" : "Kernel " + suffix;
+            }
             s.kernelVersion = "Linux " + base + " · " + Build.MODEL;
 
             String algo = readFile("/sys/block/zram0/comp_algorithm");
@@ -278,34 +292,42 @@ public class DashboardFragment extends BaseFragment {
             s.gpuMaxMhz = gpuMax / 1000000;
         }
 
-        // CPU: uma "policy" por grupo de núcleos (descobertas uma vez)
-        if (mPolicies == null) {
-            List<String> found = new ArrayList<>();
+        // CPU: uma "policy" por grupo de núcleos. Procura de novo enquanto só achou uma,
+        // porque o grupo dos núcleos grandes pode estar desligado na primeira leitura.
+        if (mPolicies == null || (mPolicies.size() < 2 && mPolicyScans < 10)) {
+            mPolicyScans++;
+            java.util.TreeSet<String> found = new java.util.TreeSet<>(
+                    (x, y) -> Integer.compare(policyIndex(x), policyIndex(y)));
             for (int n = 0; n < 16; n++) {
                 String p = "/sys/devices/system/cpu/cpufreq/policy" + n;
-                if (new File(p).exists() && readInt(p + "/cpuinfo_max_freq") > 0) found.add(p);
+                if (new File(p).exists()) found.add(p);
             }
-            if (found.isEmpty()) {
-                // sem acesso direto: pergunta ao root
-                String ls = RootUtils.runAndGetOutput("ls -d /sys/devices/system/cpu/cpufreq/policy* 2>/dev/null");
-                if (ls != null) {
-                    for (String p : ls.split("\\s+")) if (!p.isEmpty()) found.add(p.trim());
-                }
+            String ls = RootUtils.runAndGetOutput("ls -d /sys/devices/system/cpu/cpufreq/policy* 2>/dev/null");
+            if (ls != null) {
+                for (String p : ls.split("\\s+")) if (p.trim().startsWith("/")) found.add(p.trim());
             }
-            mPolicies = found;
+            mPolicies = new ArrayList<>(found);
         }
-        List<int[]> clusters = new ArrayList<>(); // {max, cur}
+        List<int[]> clusters = new ArrayList<>(); // {max, cur, índice}
         List<String> govs = new ArrayList<>();
         for (String p : mPolicies) {
             int max = readInt(p + "/cpuinfo_max_freq");
-            int cur = readInt(p + "/scaling_cur_freq");
-            clusters.add(new int[]{max, cur});
+            if (max > 0) mPolicyMax.put(p, max);
+            else max = mPolicyMax.containsKey(p) ? mPolicyMax.get(p) : 0;
+            // grupo sem núcleo ligado: frequência atual 0 (aparece como desligado)
+            String online = readFile(p + "/affected_cpus").trim();
+            int cur = online.isEmpty() ? 0 : readInt(p + "/scaling_cur_freq");
+            clusters.add(new int[]{max, cur, policyIndex(p)});
             govs.add(readFile(p + "/scaling_governor"));
         }
+        // grandes = maior frequência máxima; empate: o grupo de número maior (policy4 no SDM632)
         int bigIdx = -1, littleIdx = -1;
         for (int i = 0; i < clusters.size(); i++) {
-            if (bigIdx < 0 || clusters.get(i)[0] > clusters.get(bigIdx)[0]) bigIdx = i;
-            if (littleIdx < 0 || clusters.get(i)[0] < clusters.get(littleIdx)[0]) littleIdx = i;
+            int[] c = clusters.get(i);
+            if (bigIdx < 0 || c[0] > clusters.get(bigIdx)[0]
+                    || (c[0] == clusters.get(bigIdx)[0] && c[2] > clusters.get(bigIdx)[2])) bigIdx = i;
+            if (littleIdx < 0 || c[0] < clusters.get(littleIdx)[0]
+                    || (c[0] == clusters.get(littleIdx)[0] && c[2] < clusters.get(littleIdx)[2])) littleIdx = i;
         }
         if (bigIdx >= 0) {
             s.bigMax = clusters.get(bigIdx)[0] / 1000;
@@ -364,12 +386,14 @@ public class DashboardFragment extends BaseFragment {
         }
 
         DxMotion.countOrDash(mTileBig.value, s.bigCur, "");
-        mTileBig.sub.setText(getString(R.string.dx_mhz_gov, s.bigGov == null ? "" : prettyGov(s.bigGov)));
+        mTileBig.sub.setText(s.bigCur <= 0 ? getString(R.string.dx_cpu_off)
+                : getString(R.string.dx_mhz_gov, s.bigGov == null ? "" : prettyGov(s.bigGov)));
         mTileBig.bar.setProgressCompat(s.bigMax > 0 ? s.bigCur * 100 / s.bigMax : 0, true);
 
         if (s.hasLittle) {
             DxMotion.countOrDash(mTileLittle.value, s.littleCur, "");
-            mTileLittle.sub.setText(getString(R.string.dx_mhz_gov, s.littleGov == null ? "" : prettyGov(s.littleGov)));
+            mTileLittle.sub.setText(s.littleCur <= 0 ? getString(R.string.dx_cpu_off)
+                    : getString(R.string.dx_mhz_gov, s.littleGov == null ? "" : prettyGov(s.littleGov)));
             mTileLittle.bar.setProgressCompat(s.littleMax > 0 ? s.littleCur * 100 / s.littleMax : 0, true);
         } else {
             mTileLittle.value.setText("—");
